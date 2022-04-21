@@ -1,4 +1,4 @@
-from fastapi import APIRouter , Depends
+from fastapi import APIRouter, Depends
 from typing import List
 from starlette.middleware.cors import CORSMiddleware
 
@@ -10,6 +10,7 @@ app = APIRouter(
     tags=["user"],
     responses={404: {"description": "Not found"}},
 )
+
 
 @app.get("")
 def read_users():
