@@ -3,11 +3,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from my_settings import database
 
-DATABASE = f'mysql+pymysql://{database["user_name"]}:{database["user_password"]}@{database["db_host"]}:{database["db_port"]}/{database["db_name"]}?charset=utf8'
+DATABASE = f'mysql+pymysql://{database["DB_USERNAME"]}:{database["DB_PASSWORD"]}@{database["DB_HOST"]}:{database["DB_PORT"]}/{database["DB_DATABASE"]}?charset=utf8'
 
 ENGINE = create_engine(
     DATABASE,
-    encoding = "utf-8",
+    encoding="utf-8",
     echo=True
 )
 session = scoped_session(

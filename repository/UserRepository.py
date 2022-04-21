@@ -5,22 +5,33 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 
-def create_users(db: Session, name: str, age: int):
+def create_user(db: Session, body):
     user = UserEntity()
-    user.name = name
-    user.age = age
+    user.email = body.email
+    user.password = body.password
+    user.is_active = True
 
     db.add(user)
+
     db.commit()
 
     return {
-        "status_code": 200,
+        "status_code": 201,
     }
 
 
-def get_user_by_id(db: Session, user_id: int):
-    user = db.query(UserEntity)
-    if user_id:
-        user.filter(UserEntity.id == user_id).first()
-    json_compatible_item_data = jsonable_encoder(user)
-    return JSONResponse(content=json_compatible_item_data)
+def find_user_by_id(db: Session, user_id: int):
+    user = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+    return jsonable_encoder(user)
+
+
+def find_user_by_email(db: Session, user_email: str):
+    user = db.query(UserEntity).filter(UserEntity.email == user_email).first()
+    print('user:', jsonable_encoder(user))
+    return jsonable_encoder(user)
+
+
+def update_user_by_id(db: Session, user_id: int):
+    user = find_user_by_id(user_id)
+    user = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+    return JSONResponse(content=jsonable_encoder(user))
