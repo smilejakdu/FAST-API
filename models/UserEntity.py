@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from pydantic import BaseModel
 from db import Base
 
@@ -6,11 +6,7 @@ from db import Base
 class UserEntity(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
-    age = Column(Integer)
+    email = Column(String(50), nullable=False)
+    password = Column(String(200), nullable=False)
+    is_active = Column(Boolean, default=True)
 
-
-class User(BaseModel):
-    id: int
-    name: str
-    age: int

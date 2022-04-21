@@ -1,4 +1,4 @@
-from repository import test_repository
+from repository import TestRepository
 
 
 def test_index(db):
