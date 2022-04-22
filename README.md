@@ -7,8 +7,8 @@ https://fastapi.tiangolo.com/ko/tutorial/path-params/
 많은 기대를 갖고있다.
 
 
-- Used
-python , FAST API , MySQL
+## Used
+python , FAST API , MySQL , sqlalchemy
 
 # local
 http://localhost:8000/docs
