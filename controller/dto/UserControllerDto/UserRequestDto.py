@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 class UserDto(BaseModel):
     email: str
-    nickname:str
+    nickname: str
     password: str

@@ -6,8 +6,8 @@ from services import UserService
 from shared.CoreResponse import CoreResponse
 
 router = APIRouter(
-    prefix="/user",
-    tags=["user"],
+    prefix = "/user",
+    tags   = ["user"],
 )
 
 

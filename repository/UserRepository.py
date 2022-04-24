@@ -15,15 +15,15 @@ from fastapi.responses import JSONResponse
 
 
 def create_user(db: Session, body):
-    user = UserEntity()
-    user.email = body.email
-    user.nickname = body.nickname
+    new_user = UserEntity()
+    new_user.email = body.email
+    new_user.nickname = body.nickname
     password_crypt = bcrypt.hashpw(body.password.encode('utf-8'),
                                    bcrypt.gensalt()).decode('utf-8')
-    user.password = password_crypt
-    user.is_active = True
+    new_user.password = password_crypt
+    new_user.is_active = True
 
-    db.add(user)
+    db.add(new_user)
 
     db.commit()
 
