@@ -1,13 +1,12 @@
-# routes/test.py
 from fastapi import APIRouter
 
-from controller.dto.UserControllerDto.UserRequestDto import UserDto
+from controller.dto.UserControllerDto.UserRequestDto import createRequestDto, updateRequestDto, loginRequestDto
 from services import UserService
 from shared.CoreResponse import CoreResponse
 
 router = APIRouter(
-    prefix = "/user",
-    tags   = ["user"],
+    prefix="/user",
+    tags=["user"],
 )
 
 
@@ -17,10 +16,15 @@ async def find_user(user_id: int):
 
 
 @router.post("", response_model=CoreResponse, status_code=201)
-async def create_user(body: UserDto):
+async def create_user(body: createRequestDto):
     return UserService.create_user(body)
 
 
+@router.post("/login", response_model=CoreResponse, status_code=200)
+async def login_user(body: loginRequestDto):
+    return UserService.lo
+
+
 @router.put("/{user_id}", response_model=CoreResponse, status_code=200)
-async def update_user(body: UserDto, user_id: int):
+async def update_user(body: updateRequestDto, user_id: int):
     return UserService.update_user(user_id, body)

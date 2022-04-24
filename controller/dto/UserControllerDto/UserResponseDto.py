@@ -1,21 +1,6 @@
 from pydantic import BaseModel
 
-
-class BoardBase(BaseModel):
-    title: str
-    content: str | None = None
-
-
-class BoardCreate(BoardBase):
-    pass
-
-
-class Board(BoardBase):
-    id: int
-    user_id: int
-
-    class Config:
-        orm_mode = True
+from controller.dto.BoardControllerDto.BoardResponseDto import Board
 
 
 class UserBase(BaseModel):

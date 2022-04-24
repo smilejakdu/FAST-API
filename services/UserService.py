@@ -2,8 +2,9 @@ import json
 import bcrypt
 import re
 import jwt
+from datetime import datetime, timedelta
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, status
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 import json
@@ -11,7 +12,8 @@ import json
 from starlette.responses import JSONResponse, Response
 
 from config.connection import get_db
-from controller.dto.UserControllerDto.UserRequestDto import UserDto
+from controller.dto.UserControllerDto.UserRequestDto import loginRequestDto, createRequestDto, updateRequestDto
+from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import UserRepository
 
 
@@ -30,7 +32,7 @@ def find_user_by_id(user_id: int):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-def create_user(body: UserDto):
+def create_user(body: createRequestDto):
     db: Session = Depends(get_db)
 
     try:
@@ -52,7 +54,40 @@ def create_user(body: UserDto):
         raise HTTPException(status_code=400, detail="Bad Request")
 
 
-def update_user(user_id: int, body: UserDto):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def login_user(body: loginRequestDto):
+    db: Session = Depends(get_db)
+
+    try:
+        foundUser = UserRepository.find_user_by_email(db, body.email)
+        if bcrypt.checkpw(body.password.encode('UTF-8'),
+                          foundUser["password"].encode('UTF-8')):
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
+            return {
+                    "ok": True,
+                    "status_code": 200,
+                    "data":foundUser["email"],
+                    "access_token": access_token,
+                    "token_type": "bearer"}
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="bad request",
+        )
+
+
+def update_user(user_id: int, body: updateRequestDto):
     db: Session = Depends(get_db)
     try:
         if not body:
