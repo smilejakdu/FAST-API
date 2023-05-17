@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from models.BoardEntity import BoardEntity
+from models.board_entity import BoardEntity
 
 
 def create_board(db: Session, body):

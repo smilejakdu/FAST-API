@@ -13,7 +13,7 @@ from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import UserRepository
 
 
-def find_user_by_id(user_id: int):
+async def find_user_by_id(user_id: int):
     db: Session = Depends(get_db)
 
     try:
@@ -28,7 +28,7 @@ def find_user_by_id(user_id: int):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-def find_user_all():
+async def find_user_all():
     db: Session = Depends(get_db)
     try:
         users = UserRepository.find_user_all(db)
@@ -40,7 +40,7 @@ def find_user_all():
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-def create_user(body: createRequestDto):
+async def create_user(body: createRequestDto):
     db: Session = Depends(get_db)
 
     try:
@@ -62,7 +62,7 @@ def create_user(body: createRequestDto):
         raise HTTPException(status_code=400, detail="Bad Request")
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+async def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -73,21 +73,22 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def login_user(body: loginRequestDto):
+async def login_user(body: loginRequestDto):
     db: Session = Depends(get_db)
 
     try:
-        foundUser = UserRepository.find_user_by_email(db, body.email)
+        found_user = UserRepository.find_user_by_email(db, body.email)
         if bcrypt.checkpw(body.password.encode('UTF-8'),
-                          foundUser["password"].encode('UTF-8')):
+                          found_user["password"].encode('UTF-8')):
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
             return {
                 "ok": True,
                 "status_code": 200,
-                "data": foundUser["email"],
+                "data": found_user["email"],
                 "access_token": access_token,
-                "token_type": "bearer"}
+                "token_type": "bearer"
+            }
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -95,7 +96,7 @@ def login_user(body: loginRequestDto):
         )
 
 
-def update_user(user_id: int, body: updateRequestDto):
+async def update_user(user_id: int, body: updateRequestDto):
     db: Session = Depends(get_db)
     try:
         if not body:

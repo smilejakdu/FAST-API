@@ -4,13 +4,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy import update
 
 from controller.dto.UserControllerDto.UserRequestDto import UserDto
-from models.UserEntity import UserEntity
+from models.user_entity import user_entity
 
 from fastapi.encoders import jsonable_encoder
 
 
 def create_user(db: Session, body):
-    new_user = UserEntity()
+    new_user = user_entity()
     new_user.email = body.email
     new_user.nickname = body.nickname
     password_crypt = bcrypt.hashpw(body.password.encode('utf-8'),
@@ -28,22 +28,22 @@ def create_user(db: Session, body):
 
 
 def find_user_by_id(db: Session, user_id: int):
-    user = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+    user = db.query(user_entity).filter(user_entity.id == user_id).first()
     return jsonable_encoder(user)
 
 
 def find_user_all(db: Session):
-    users = db.query(UserEntity).all()
+    users = db.query(user_entity).all()
     return jsonable_encoder(users)
 
 
 def find_user_by_email(db: Session, user_email: str):
-    user = db.query(UserEntity).filter(UserEntity.email == user_email).first()
+    user = db.query(user_entity).filter(user_entity.email == user_email).first()
     return jsonable_encoder(user)
 
 
 def update_user_by_id(db: Session, user_id: int, body: UserDto):
-    stmt = update(UserEntity).where(UserEntity.id == user_id).values(nickname=body.nickname). \
+    stmt = update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
         execution_options(synchronize_session="fetch")
     db.execute(stmt)
     db.commit()

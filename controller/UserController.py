@@ -27,7 +27,7 @@ async def create_user(body: createRequestDto):
 
 @router.post("/login", response_model=CoreResponse, status_code=200)
 async def login_user(body: loginRequestDto):
-    return UserService.lo
+    return UserService.login_user(body)
 
 
 @router.put("/{user_id}", response_model=CoreResponse, status_code=200)
