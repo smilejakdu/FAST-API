@@ -1,6 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from controller.dto.UserControllerDto.UserRequestDto import createRequestDto, updateRequestDto, loginRequestDto
+from models.connection import get_db
 from services import UserService
 from shared.CoreResponse import CoreResponse
 
@@ -16,8 +18,8 @@ async def find_user(user_id: int):
 
 
 @router.get("/find_user_all", status_code=200)
-async def find_user():
-    return UserService.find_user_all()
+def find_user(db:Session = Depends(get_db)):
+    return UserService.find_user_all(db)
 
 
 @router.post("", response_model=CoreResponse, status_code=201)

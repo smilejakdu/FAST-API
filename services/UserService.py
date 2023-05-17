@@ -28,15 +28,15 @@ async def find_user_by_id(user_id: int):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-async def find_user_all():
-    db: Session = Depends(get_db)
+def find_user_all(db: Session):
     try:
         users = UserRepository.find_user_all(db)
         return JSONResponse(
             status_code=200,
             content=users,
         )
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 

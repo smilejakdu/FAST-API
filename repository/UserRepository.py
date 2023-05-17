@@ -1,9 +1,11 @@
 import bcrypt
+from fastapi import Depends
 
 from sqlalchemy.orm import Session
 from sqlalchemy import update
 
 from controller.dto.UserControllerDto.UserRequestDto import UserDto
+from models.connection import get_db
 from models.user_entity import user_entity
 
 from fastapi.encoders import jsonable_encoder
