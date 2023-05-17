@@ -32,13 +32,18 @@ def find_user_by_id(db: Session, user_id: int):
     return jsonable_encoder(user)
 
 
+def find_user_all(db: Session):
+    users = db.query(UserEntity).all()
+    return jsonable_encoder(users)
+
+
 def find_user_by_email(db: Session, user_email: str):
     user = db.query(UserEntity).filter(UserEntity.email == user_email).first()
     return jsonable_encoder(user)
 
 
 def update_user_by_id(db: Session, user_id: int, body: UserDto):
-    stmt = update(UserEntity).where(UserEntity.id == user_id).values(nickname=body.nickname).\
+    stmt = update(UserEntity).where(UserEntity.id == user_id).values(nickname=body.nickname). \
         execution_options(synchronize_session="fetch")
     db.execute(stmt)
     db.commit()

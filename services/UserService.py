@@ -28,6 +28,18 @@ def find_user_by_id(user_id: int):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
+def find_user_all():
+    db: Session = Depends(get_db)
+    try:
+        users = UserRepository.find_user_all(db)
+        return JSONResponse(
+            status_code=200,
+            content=users,
+        )
+    except Exception:
+        raise HTTPException(status_code=400, detail="BAD REQUEST")
+
+
 def create_user(body: createRequestDto):
     db: Session = Depends(get_db)
 
@@ -71,11 +83,11 @@ def login_user(body: loginRequestDto):
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
             return {
-                    "ok": True,
-                    "status_code": 200,
-                    "data":foundUser["email"],
-                    "access_token": access_token,
-                    "token_type": "bearer"}
+                "ok": True,
+                "status_code": 200,
+                "data": foundUser["email"],
+                "access_token": access_token,
+                "token_type": "bearer"}
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -88,10 +100,10 @@ def update_user(user_id: int, body: updateRequestDto):
     try:
         if not body:
             raise HTTPException(status_code=404, detail="does not found user")
-        foundUser = UserRepository.find_user_by_id(db, user_id)
-        if bcrypt.checkpw(body.password.encode('UTF-8'), foundUser["password"].encode('UTF-8')):
-            responseUpdated = UserRepository.update_user_by_id(db, user_id, body)
-            return responseUpdated
+        found_user = UserRepository.find_user_by_id(db, user_id)
+        if bcrypt.checkpw(body.password.encode('UTF-8'), found_user["password"].encode('UTF-8')):
+            response_updated = UserRepository.update_user_by_id(db, user_id, body)
+            return response_updated
     except Exception:
         db.rollback()
         raise HTTPException(status_code=400, detail="Bad Request")
