@@ -5,6 +5,11 @@ class UserBase(BaseModel):
     email: str
 
 
+class UserDto(UserBase):
+    nickname: str
+    password: str
+
+
 class createRequestDto(BaseModel):
     email: str
     nickname: str

@@ -1,8 +1,4 @@
-import json
 import bcrypt
-import re
-import jwt
-import requests
 
 from sqlalchemy.orm import Session
 from sqlalchemy import update
@@ -11,7 +7,6 @@ from controller.dto.UserControllerDto.UserRequestDto import UserDto
 from models.UserEntity import UserEntity
 
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 
 
 def create_user(db: Session, body):

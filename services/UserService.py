@@ -1,17 +1,13 @@
-import json
 import bcrypt
-import re
 import jwt
 from datetime import datetime, timedelta
 
 from fastapi import HTTPException, Depends, status
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-import json
 
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
-from config.connection import get_db
+from models.connection import get_db
 from controller.dto.UserControllerDto.UserRequestDto import loginRequestDto, createRequestDto, updateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import UserRepository

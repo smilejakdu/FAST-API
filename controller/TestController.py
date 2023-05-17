@@ -1,7 +1,7 @@
 # routes/test.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from config.connection import get_db
+from models.connection import get_db
 from services import TestService
 
 router = APIRouter(
