@@ -13,9 +13,7 @@ from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import UserRepository
 
 
-async def find_user_by_id(user_id: int):
-    db: Session = Depends(get_db)
-
+def find_user_by_id(db: Session, user_id: int):
     try:
         if not user_id:
             raise HTTPException(status_code=400, detail="BAD REQUEST")

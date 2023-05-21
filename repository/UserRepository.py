@@ -36,7 +36,6 @@ def find_user_by_id(db: Session, user_id: int):
 
 def find_user_all(db: Session):
     users = db.query(user_entity).all()
-    print('users: ', users)
     return jsonable_encoder(users)
 
 

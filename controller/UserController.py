@@ -12,13 +12,8 @@ router = APIRouter(
 )
 
 
-@router.get("/find_user", status_code=200)
-async def find_user(user_id: int):
-    return UserService.find_user_by_id(user_id)
-
-
 @router.get("/find_user_all", status_code=200)
-def find_user(db:Session = Depends(get_db)):
+def find_user(db: Session = Depends(get_db)):
     return UserService.find_user_all(db)
 
 
@@ -30,6 +25,11 @@ async def create_user(body: createRequestDto):
 @router.post("/login", response_model=CoreResponse, status_code=200)
 async def login_user(body: loginRequestDto):
     return UserService.login_user(body)
+
+
+@router.get("/{user_id}", status_code=200)
+async def find_user(user_id: int, db: Session = Depends(get_db)):
+    return UserService.find_user_by_id(db, user_id)
 
 
 @router.put("/{user_id}", response_model=CoreResponse, status_code=200)
