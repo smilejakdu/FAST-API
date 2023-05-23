@@ -4,7 +4,7 @@ from controller.dto.BoardControllerDto.BoardRequestDto import BoardDto
 from shared.CoreResponse import CoreResponse
 
 router = APIRouter(
-    prefix="/bOARD",
+    prefix="/board",
     tags=["BOARD"]
 )
 
