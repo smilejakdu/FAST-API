@@ -10,52 +10,46 @@ from starlette.responses import JSONResponse
 from models.connection import get_db
 from controller.dto.UserControllerDto.UserRequestDto import loginRequestDto, createRequestDto, updateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from repository import UserRepository
+from repository import user_repository
 
 
 def find_user_by_id(db: Session, user_id: int):
     try:
         if not user_id:
             raise HTTPException(status_code=400, detail="BAD REQUEST")
-        user = UserRepository.find_user_by_id(db, user_id)
-        return JSONResponse(
-            status_code=200,
-            content=user,
-        )
+        user = user_repository.find_user_by_id(db, user_id)
+        return JSONResponse(content=user)
     except Exception:
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
 def find_user_all(db: Session):
     try:
-        users = UserRepository.find_user_all(db)
-        return JSONResponse(
-            status_code=200,
-            content=users,
-        )
+        users = user_repository.find_user_all(db)
+        print('user:', users)
+        return JSONResponse(content=users)
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-async def create_user(body: createRequestDto):
-    db: Session = Depends(get_db)
-
+def create_user(body: createRequestDto, db: Session):
     try:
         if not body:
             raise HTTPException(status_code=400, detail="BAD REQUEST")
-
-        user = UserRepository.find_user_by_email(db, body.email)
+        user = user_repository.find_user_by_email(db, body.email)
         if user:
             raise HTTPException(status_code=404, detail="EXIST USER")
-        UserRepository.create_user(db, body)
+        response_created_user = user_repository.create_user(db, body)
 
+        # This returns a dict that matches the CoreResponse model
         return {
             "ok": True,
             "status_code": 201,
-            "message": "SUCCESS",
+            "message": response_created_user['message']
         }
-    except Exception:
+    except Exception as e:
+        print(e)
         db.rollback()
         raise HTTPException(status_code=400, detail="Bad Request")
 
@@ -75,7 +69,7 @@ async def login_user(body: loginRequestDto):
     db: Session = Depends(get_db)
 
     try:
-        found_user = UserRepository.find_user_by_email(db, body.email)
+        found_user = user_repository.find_user_by_email(db, body.email)
         if bcrypt.checkpw(body.password.encode('UTF-8'),
                           found_user["password"].encode('UTF-8')):
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -99,9 +93,9 @@ async def update_user(user_id: int, body: updateRequestDto):
     try:
         if not body:
             raise HTTPException(status_code=404, detail="does not found user")
-        found_user = UserRepository.find_user_by_id(db, user_id)
+        found_user = user_repository.find_user_by_id(db, user_id)
         if bcrypt.checkpw(body.password.encode('UTF-8'), found_user["password"].encode('UTF-8')):
-            response_updated = UserRepository.update_user_by_id(db, user_id, body)
+            response_updated = user_repository.update_user_by_id(db, user_id, body)
             return response_updated
     except Exception:
         db.rollback()

@@ -1,14 +1,10 @@
 import bcrypt
-from fastapi import Depends
-
-from sqlalchemy.orm import Session
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import update
+from sqlalchemy.orm import Session
 
 from controller.dto.UserControllerDto.UserRequestDto import UserDto
-from models.connection import get_db
 from models.user_entity import user_entity
-
-from fastapi.encoders import jsonable_encoder
 
 
 def create_user(db: Session, body):
@@ -25,7 +21,9 @@ def create_user(db: Session, body):
     db.commit()
 
     return {
+        "ok": True,
         "status_code": 201,
+        "message": "User created successfully"
     }
 
 

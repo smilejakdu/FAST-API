@@ -13,6 +13,6 @@ app = FastAPI()
 @app.exception_handler(UnicornException)
 async def unicorn_exception_handler(request: Request, exc: UnicornException):
     return JSONResponse(
-        status_code = 400,
-        content = {"message": f" Bad Request Error {exc.name}"},
+        status_code=400,
+        content={"message": f" Bad Request Error {exc.name}"},
     )
