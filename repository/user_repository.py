@@ -7,7 +7,7 @@ from controller.dto.UserControllerDto.UserRequestDto import UserDto
 from models.user_entity import user_entity
 
 
-def create_user(db: Session, body):
+async def create_user(db: Session, body):
     new_user = user_entity()
     new_user.email = body.email
     new_user.nickname = body.nickname
@@ -17,7 +17,7 @@ def create_user(db: Session, body):
     new_user.is_active = True
 
     db.add(new_user)
-
+    db.flush()
     db.commit()
 
     return {

@@ -33,14 +33,14 @@ def find_user_all(db: Session):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-def create_user(body: createRequestDto, db: Session):
+async def create_user(body: createRequestDto, db: Session):
     try:
         if not body:
             raise HTTPException(status_code=400, detail="BAD REQUEST")
         user = user_repository.find_user_by_email(db, body.email)
         if user:
             raise HTTPException(status_code=404, detail="EXIST USER")
-        response_created_user = user_repository.create_user(db, body)
+        response_created_user = await user_repository.create_user(db, body)
 
         # This returns a dict that matches the CoreResponse model
         return {

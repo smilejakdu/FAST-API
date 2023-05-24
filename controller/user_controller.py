@@ -18,8 +18,8 @@ def find_user(db: Session = Depends(get_db)):
 
 
 @router.post("/sign_up", response_model=CoreResponse, status_code=201)
-def create_user(body: createRequestDto, db: Session = Depends(get_db)):
-    return user_service.create_user(body, db)
+async def create_user(body: createRequestDto, db: Session = Depends(get_db)):
+    return await user_service.create_user(body, db)
 
 
 @router.post("/login", response_model=CoreResponse, status_code=200)
