@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI
-
+import uvicorn
 from controller import (user_controller,
                         board_controller,
                         )
@@ -17,3 +17,7 @@ def index():
     return {
         "Python": "Framework",
     }
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=13013)  # 기본 포트 8000

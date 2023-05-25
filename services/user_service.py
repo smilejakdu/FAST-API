@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from models.connection import get_db
-from controller.dto.UserControllerDto.UserRequestDto import loginRequestDto, createRequestDto, updateRequestDto
+from controller.dto.UserControllerDto.UserRequestDto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
 
@@ -33,7 +33,7 @@ def find_user_all(db: Session):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-async def create_user(body: createRequestDto, db: Session):
+async def create_user(body: CreateRequestDto, db: Session):
     try:
         if not body:
             raise HTTPException(status_code=400, detail="BAD REQUEST")
@@ -65,7 +65,7 @@ async def create_access_token(data: dict, expires_delta: timedelta | None = None
     return encoded_jwt
 
 
-async def login_user(body: loginRequestDto):
+async def login_user(body: LoginRequestDto):
     db: Session = Depends(get_db)
 
     try:
@@ -88,7 +88,7 @@ async def login_user(body: loginRequestDto):
         )
 
 
-async def update_user(user_id: int, body: updateRequestDto):
+async def update_user(user_id: int, body: UpdateRequestDto):
     db: Session = Depends(get_db)
     try:
         if not body:

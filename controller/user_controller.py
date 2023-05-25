@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from controller.dto.UserControllerDto.UserRequestDto import createRequestDto, updateRequestDto, loginRequestDto
+from controller.dto.UserControllerDto.UserRequestDto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
 from models.connection import get_db
 from services import user_service
 from shared.core_response import CoreResponse
@@ -18,12 +18,12 @@ def find_user(db: Session = Depends(get_db)):
 
 
 @router.post("/sign_up", response_model=CoreResponse, status_code=201)
-async def create_user(body: createRequestDto, db: Session = Depends(get_db)):
+async def create_user(body: CreateRequestDto, db: Session = Depends(get_db)):
     return await user_service.create_user(body, db)
 
 
 @router.post("/login", response_model=CoreResponse, status_code=200)
-async def login_user(body: loginRequestDto):
+async def login_user(body: LoginRequestDto):
     return user_service.login_user(body)
 
 
@@ -33,5 +33,5 @@ async def find_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=CoreResponse, status_code=200)
-async def update_user(body: updateRequestDto, user_id: int):
+async def update_user(body: UpdateRequestDto, user_id: int):
     return user_service.update_user(user_id, body)
