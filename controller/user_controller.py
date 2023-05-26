@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-from controller.dto.UserControllerDto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
-from controller.dto.UserControllerDto.user_response_dto import LoginResponse, MyInfoResponse
+from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
+from controller.dto.user_controller_dto.user_response_dto import LoginResponse, MyInfoResponse
 from models.connection import get_db
 from services import user_service
 from shared.core_response import CoreResponse

@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from controller.dto.UserControllerDto.user_request_dto import UserDto
+from controller.dto.user_controller_dto.user_request_dto import UserDto
 from models.user_entity import user_entity
 
 

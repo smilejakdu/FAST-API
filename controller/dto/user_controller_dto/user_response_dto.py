@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from controller.dto.BoardControllerDto.BoardResponseDto import Board
+from controller.dto.board_controller_dto.board_response_dto import Board
 from shared.core_response import CoreResponse
 
 

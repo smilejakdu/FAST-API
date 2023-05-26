@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from models.connection import get_db
-from controller.dto.UserControllerDto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
+from controller.dto.user_controller_dto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
 

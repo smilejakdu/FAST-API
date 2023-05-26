@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from controller.dto.BoardControllerDto.BoardRequestDto import BoardDto
+from controller.dto.board_controller_dto.board_request_dto import BoardDto
 from shared.core_response import CoreResponse
 
 router = APIRouter(
