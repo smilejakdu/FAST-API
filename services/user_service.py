@@ -107,6 +107,7 @@ async def my_info(db: Session, access_token: str):
 
         email_from_token = payload.get("sub")
         user_info = user_repository.find_user_by_email(db, email_from_token)
+        del user_info["password"]
         response = JSONResponse({
             "ok": True,
             "status_code": HTTPStatus.OK,

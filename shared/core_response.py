@@ -11,3 +11,7 @@ class CoreResponse(BaseModel):
 class LoginResponse(CoreResponse):
     data: str
     access_token: Optional[str] = None
+
+
+class MyInfoResponse(CoreResponse):
+    data: str
