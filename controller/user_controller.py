@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from controller.dto.UserControllerDto.UserRequestDto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
 from models.connection import get_db
 from services import user_service
-from shared.core_response import CoreResponse
+from shared.core_response import CoreResponse, LoginResponse
 
 router = APIRouter(
     prefix="/user",
@@ -22,9 +22,9 @@ async def create_user(body: CreateRequestDto, db: Session = Depends(get_db)):
     return await user_service.create_user(body, db)
 
 
-@router.post("/login", response_model=CoreResponse, status_code=200)
-async def login_user(body: LoginRequestDto):
-    return user_service.login_user(body)
+@router.post("/login", response_model=LoginResponse, status_code=200)
+async def login_user(body: LoginRequestDto, db: Session = Depends(get_db)):
+    return await user_service.login_user(body, db)
 
 
 @router.get("/{user_id}", status_code=200)

@@ -7,3 +7,11 @@ class CoreResponse(BaseModel):
     ok: bool
     status_code: int
     message: str
+
+
+class LoginResponse(BaseModel):
+    ok: bool
+    status_code: int
+    message: str
+    data: str
+    access_token: Optional[str] = None

@@ -42,7 +42,9 @@ async def create_user(body: CreateRequestDto, db: Session):
             raise HTTPException(status_code=404, detail="EXIST USER")
         response_created_user = await user_repository.create_user(db, body)
 
-        # This returns a dict that matches the CoreResponse model
+        access_token = create_access_token({"email": body.email})
+        response_created_user["access_token"] = access_token
+
         return {
             "ok": True,
             "status_code": 201,
@@ -65,23 +67,23 @@ async def create_access_token(data: dict, expires_delta: timedelta | None = None
     return encoded_jwt
 
 
-async def login_user(body: LoginRequestDto):
-    db: Session = Depends(get_db)
-
+async def login_user(body: LoginRequestDto, db: Session):
+    print('body:', body)
     try:
         found_user = user_repository.find_user_by_email(db, body.email)
         if bcrypt.checkpw(body.password.encode('UTF-8'),
                           found_user["password"].encode('UTF-8')):
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            access_token = create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
+            access_token = await create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
             return {
                 "ok": True,
                 "status_code": 200,
+                "message": "Login successful",  # Add this
                 "data": found_user["email"],
                 "access_token": access_token,
-                "token_type": "bearer"
             }
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="bad request",
