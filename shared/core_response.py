@@ -1,5 +1,4 @@
 from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -9,9 +8,6 @@ class CoreResponse(BaseModel):
     message: str
 
 
-class LoginResponse(BaseModel):
-    ok: bool
-    status_code: int
-    message: str
+class LoginResponse(CoreResponse):
     data: str
     access_token: Optional[str] = None

@@ -1,4 +1,7 @@
+from http import HTTPStatus
+
 import bcrypt
+from jwt import decode, InvalidTokenError
 import jwt
 from datetime import datetime, timedelta
 
@@ -75,19 +78,45 @@ async def login_user(body: LoginRequestDto, db: Session):
                           found_user["password"].encode('UTF-8')):
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = await create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
-            return {
+
+            response = JSONResponse({
                 "ok": True,
-                "status_code": 200,
-                "message": "Login successful",  # Add this
+                "status_code": HTTPStatus.OK,
+                "message": "Login successful",
                 "data": found_user["email"],
                 "access_token": access_token,
-            }
+            })
+
+            response.set_cookie(key="access-token", value=access_token)  # Set the cookie here
+            return response
     except Exception as e:
         print(e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="bad request",
         )
+
+
+async def my_info(db: Session, access_token: str):
+    try:
+        payload = decode(
+            access_token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+
+        email_from_token = payload.get("sub")
+        user_info = user_repository.find_user_by_email(db, email_from_token)
+        response = JSONResponse({
+            "ok": True,
+            "status_code": HTTPStatus.OK,
+            "message": "Login successful",
+            "data": user_info,
+        })
+        return response
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 async def update_user(user_id: int, body: UpdateRequestDto):
