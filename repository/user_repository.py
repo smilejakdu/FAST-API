@@ -1,9 +1,11 @@
+from http import HTTPStatus
+
 import bcrypt
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from controller.dto.UserControllerDto.UserRequestDto import UserDto
+from controller.dto.UserControllerDto.user_request_dto import UserDto
 from models.user_entity import user_entity
 
 
@@ -50,6 +52,19 @@ def update_user_by_id(db: Session, user_id: int, body: UserDto):
     return {
         "ok": True,
         "status_code": 200,
+        "data": user_id,
+        "message": "SUCCESS",
+    }
+
+
+def update_user_by_email(db: Session, user_id: int, body: UserDto):
+    response_updated_user = update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
+        execution_options(synchronize_session="fetch")
+    db.execute(response_updated_user)
+    db.commit()
+    return {
+        "ok": True,
+        "status_code": HTTPStatus.OK,
         "data": user_id,
         "message": "SUCCESS",
     }

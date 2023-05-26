@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from models.connection import get_db
-from controller.dto.UserControllerDto.UserRequestDto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
+from controller.dto.UserControllerDto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
 
@@ -120,15 +120,30 @@ async def my_info(db: Session, access_token: str):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
-async def update_user(user_id: int, body: UpdateRequestDto):
-    db: Session = Depends(get_db)
+async def update_user(
+        db: Session,
+        body: UpdateRequestDto,
+        access_token: str,
+):
     try:
-        if not body:
-            raise HTTPException(status_code=404, detail="does not found user")
-        found_user = user_repository.find_user_by_id(db, user_id)
-        if bcrypt.checkpw(body.password.encode('UTF-8'), found_user["password"].encode('UTF-8')):
-            response_updated = user_repository.update_user_by_id(db, user_id, body)
+        payload = decode(
+            access_token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+
+        email_from_token = payload.get("sub")
+        print('email_from_token:', email_from_token)
+        user_info = user_repository.find_user_by_email(db, email_from_token)
+        print('user_info:', user_info)
+        # body 에 있는 password 와 user_info 의 password 를 비교한다.
+        if bcrypt.checkpw(
+                body.password.encode('UTF-8'),
+                user_info["password"].encode('UTF-8'),
+        ):
+            response_updated = user_repository.update_user_by_email(db, user_info['id'], body)
             return response_updated
-    except Exception:
+    except Exception as e:
+        print(e)
         db.rollback()
         raise HTTPException(status_code=400, detail="Bad Request")

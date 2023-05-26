@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-from controller.dto.UserControllerDto.UserRequestDto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
+from controller.dto.UserControllerDto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
+from controller.dto.UserControllerDto.user_response_dto import LoginResponse, MyInfoResponse
 from models.connection import get_db
-from my_settings import SECRET_KEY, ALGORITHM
 from services import user_service
-from shared.core_response import CoreResponse, LoginResponse, MyInfoResponse
+from shared.core_response import CoreResponse
 
 router = APIRouter(
     prefix="/user",
@@ -47,6 +47,18 @@ async def my_info(request: Request, db: Session = Depends(get_db)):
     return await user_service.my_info(db, access_token)
 
 
-@router.put("/{user_id}", response_model=CoreResponse, status_code=200)
-async def update_user(body: UpdateRequestDto, user_id: int):
-    return user_service.update_user(user_id, body)
+@router.put(
+    "",
+    response_model=MyInfoResponse,
+    status_code=200,
+    summary="수정하고 나서 내정보를 가져온다.",
+    description="수정하고 나서 내정보를 가져온다."
+)
+async def update_user(
+        request: Request,
+        body: UpdateRequestDto,
+        db: Session = Depends(get_db),
+):
+    access_token = request.cookies.get("access-token")
+    print('access_token:', access_token)
+    return await user_service.update_user(db, body, access_token)
