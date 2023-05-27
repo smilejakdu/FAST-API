@@ -10,8 +10,7 @@ class BoardBase(BaseModel):
     created_at: str | None = None
 
 
-class BoardCreate(CoreResponse):
-    # data 는 객체로 해줘
+class ResponseCreateBoard(CoreResponse):
     data: BoardBase
 
 

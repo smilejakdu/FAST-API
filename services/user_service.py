@@ -83,8 +83,8 @@ async def login_user(body: LoginRequestDto, db: Session):
                 "ok": True,
                 "status_code": HTTPStatus.OK,
                 "message": "Login successful",
-                "data": found_user["email"],
                 "access_token": access_token,
+                "data": found_user,
             })
 
             response.set_cookie(key="access-token", value=access_token)  # Set the cookie here

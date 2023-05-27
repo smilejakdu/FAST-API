@@ -12,11 +12,9 @@ app.include_router(user_controller.router)
 app.include_router(board_controller.router)
 
 
-@app.get("/")
+@app.get("/health")
 def index():
-    return {
-        "Python": "Framework",
-    }
+    return 'ok'
 
 
 if __name__ == "__main__":
