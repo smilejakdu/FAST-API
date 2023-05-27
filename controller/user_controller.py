@@ -9,7 +9,7 @@ from shared.core_response import CoreResponse
 
 router = APIRouter(
     prefix="/user",
-    tags=["user"],
+    tags=["USER"],
 )
 
 
