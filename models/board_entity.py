@@ -6,7 +6,7 @@ from db import Base
 
 class board_entity(Base):
     __tablename__ = 'boards'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(200), nullable=False)
     content = Column(String(200), nullable=True)
     user_id = Column(Integer, ForeignKey('users.id'))
