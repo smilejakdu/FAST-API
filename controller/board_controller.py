@@ -1,11 +1,10 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
 
-from controller.dto.board_controller_dto.board_request_dto import BoardDto
-from controller.dto.board_controller_dto.board_response_dto import ResponseCreateBoard
+from controller.dto.board_controller_dto.board_request_dto import BoardDto, PaginationRequestDto
+from controller.dto.board_controller_dto.board_response_dto import ResponseCreateBoard, ResponseFindBoardAll
 from models.connection import get_db
 from services import board_service
 from shared.core_response import CoreResponse
@@ -18,14 +17,22 @@ router = APIRouter(
 
 @router.get(
     "",
+    # response_model=ResponseFindBoardAll,
     status_code=200,
     summary="게시판 불러오기",
     description="게시판 불러오기"
 )
-async def find_board(q: Optional[str] = None, db: Session = Depends(get_db)):
-    if q:
-        return {"items": "results for " + q}
-    return
+async def find_board_all(
+        query: PaginationRequestDto = Depends(),
+        db: Session = Depends(get_db),
+):
+    page, page_size, search = query.page, query.page_size, query.search
+    return await board_service.find_board_all(
+        db,
+        page,
+        page_size,
+        search,
+    )
 
 
 @router.post(

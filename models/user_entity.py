@@ -7,7 +7,7 @@ from models.board_entity import board_entity
 
 class user_entity(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: int = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(200), nullable=False)
     nickname = Column(String(200), nullable=True)
     password = Column(String(200), nullable=False)
