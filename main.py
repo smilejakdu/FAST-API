@@ -14,7 +14,7 @@ app.include_router(board_controller.router)
 
 @app.get("/health")
 def index():
-    return 'ok'
+    return 'health check ok'
 
 
 if __name__ == "__main__":

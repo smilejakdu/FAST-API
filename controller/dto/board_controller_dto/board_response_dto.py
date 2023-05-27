@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 from shared.core_response import CoreResponse
@@ -18,9 +20,9 @@ class BoardBase(BaseModel):
     content: str
     email: str
     user_id: int
-    created_at: str
-    updated_at: str | None = None
-    deleted_at: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    deleted_at: datetime | None = None
 
 
 class ResponseCreateBoard(CoreResponse):
