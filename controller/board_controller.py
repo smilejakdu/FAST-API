@@ -21,8 +21,8 @@ router = APIRouter(
     description="전체 게시판 불러오기"
 )
 async def find_board_all(
-        query: FindBoardRequestDto = Depends(),
-        db: Session = Depends(get_db),
+    query: FindBoardRequestDto = Depends(),
+    db: Session = Depends(get_db),
 ):
     page, page_size, search = query.page, query.page_size, query.search
     return await board_service.find_board_all(
@@ -76,7 +76,6 @@ async def update_board(request: Request, board_id: int, body: BoardDto, db: Sess
 async def delete_board(request: Request, board_id: int, db: Session = Depends(get_db)):
     access_token = request.cookies.get("access-token")
     return await board_service.delete_board(db, board_id, access_token)
-
 
 
 @router.post(

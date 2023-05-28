@@ -122,13 +122,23 @@ async def create_board(db: Session, body: BoardDto, access_token: str):
             body,
             user_info["id"],
         )
-        print('response_created_board:', response_created_board)
+
+        data = {
+            'id': response_created_board.id,
+            'title': response_created_board.title,
+            'content': response_created_board.content,
+            'email': user_info['email'],
+            'user_id': response_created_board.user_id,
+            'created_at': str(response_created_board.created_at),  # assuming this is a datetime object
+            'updated_at': str(response_created_board.updated_at),  # assuming this is a datetime object
+            'deleted_at': str(response_created_board.deleted_at) if response_created_board.deleted_at else None,
+        }
 
         return JSONResponse({
             "ok": True,
             "status_code": HTTPStatus.OK,
             "message": "Board Successful",
-            "data": dict(response_created_board),
+            "data": data,
         })
     except Exception as e:
         print(e)
@@ -201,7 +211,7 @@ async def delete_board(db: Session, board_id: int, access_token: str):
         return JSONResponse({
             "ok": True,
             "status_code": HTTPStatus.OK,
-            "message": "Board Update Successful",
+            "message": "Board Delete Successful",
             "data": response_updated_board,
         })
     except Exception as e:

@@ -78,6 +78,7 @@ async def login_user(body: LoginRequestDto, db: Session):
                           found_user["password"].encode('UTF-8')):
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = await create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
+            del found_user["password"]
 
             response = JSONResponse({
                 "ok": True,
