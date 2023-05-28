@@ -84,7 +84,17 @@ async def find_my_board(
     email: str,
     page: Optional[int],
     page_size: Optional[int],
+    search: Optional[str] = None,
 ):
+    if search:
+        return (db.query(board_entity)
+                .join(user_entity, user_entity.id == board_entity.user_id)
+                .filter(
+            user_entity.email == email,
+            board_entity.title.like(f"%{search}%"))
+                .offset((page - 1) * page_size)
+                .limit(page_size)
+                .all())
     return (db.query(board_entity)
             .join(user_entity, user_entity.id == board_entity.user_id)
             .filter(user_entity.email == email)

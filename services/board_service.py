@@ -63,6 +63,7 @@ async def find_my_board(
     page: Optional[int] = None,
     page_size: Optional[int] = None,
     access_token: str = None,
+    search: str = None,
 ):
     payload = decode(
         access_token,
@@ -77,6 +78,7 @@ async def find_my_board(
         email,
         page,
         page_size,
+        search,
     )
 
     if not response_find_my_board:

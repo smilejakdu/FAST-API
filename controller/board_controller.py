@@ -46,12 +46,13 @@ async def find_my_board(
     db: Session = Depends(get_db),
 ):
     access_token = request.cookies.get("access-token")
-    page, page_size = query.page, query.page_size
+    page, page_size, search = query.page, query.page_size, query.search
     return await board_service.find_my_board(
         db,
         page,
         page_size,
-        access_token
+        access_token,
+        search
     )
 
 
