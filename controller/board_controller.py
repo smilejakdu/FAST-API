@@ -67,6 +67,18 @@ async def update_board(request: Request, board_id: int, body: BoardDto, db: Sess
     return await board_service.update_board(db, board_id, body, access_token)
 
 
+@router.delete(
+    "/{board_id}",
+    status_code=200,
+    summary="게시판 삭제",
+    description="게시판을 삭제 한다."
+)
+async def delete_board(request: Request, board_id: int, db: Session = Depends(get_db)):
+    access_token = request.cookies.get("access-token")
+    return await board_service.delete_board(db, board_id, access_token)
+
+
+
 @router.post(
     "",
     response_model=ResponseCreateBoard,

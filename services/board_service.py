@@ -28,25 +28,24 @@ def tuple_to_dict(tup):
     return board_dict
 
 
-async def find_my_board(
+async def find_board_all(
     db: Session,
     page: Optional[int] = None,
     page_size: Optional[int] = None,
     search: Optional[str] = None,
 ):
-    response_find_board = await board_repository.find_board_by_search(
-        db,
-        page,
-        page_size,
-        search,
-    )
-    if not response_find_board:
-        raise HTTPException(status_code=404, detail="게시판 글이 존재하지 않습니다.")
-
-    response_find_board = [tuple_to_dict(tup) for tup in response_find_board]
-    print('response_find_board:', response_find_board)
-
     try:
+        response_find_board = await board_repository.find_board_by_search(
+            db,
+            page,
+            page_size,
+            search,
+        )
+        if not response_find_board:
+            raise HTTPException(status_code=404, detail="게시판 글이 존재하지 않습니다.")
+
+        response_find_board = [tuple_to_dict(tup) for tup in response_find_board]
+
         return {
             'ok': True,
             'status_code': HTTPStatus.OK,
@@ -175,3 +174,41 @@ async def update_board(db: Session, board_id: int, body: BoardDto, access_token:
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail="Bad Request")
+
+
+async def delete_board(db: Session, board_id: int, access_token: str):
+    if board_id is None:
+        raise HTTPException(status_code=404, detail="게시판 ID를 입력해주세요")
+    try:
+        payload = decode(
+            access_token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+
+        email_from_token = payload.get("sub")
+        user_info = user_repository.find_user_by_email(db, email_from_token)
+
+        if not user_info:
+            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
+
+        response_updated_board: board_entity = await board_repository.delete_board(
+            db,
+            board_id,
+            user_info["id"],
+        )
+
+        return JSONResponse({
+            "ok": True,
+            "status_code": HTTPStatus.OK,
+            "message": "Board Update Successful",
+            "data": response_updated_board,
+        })
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail="Bad Request")
+
+
+
+
+

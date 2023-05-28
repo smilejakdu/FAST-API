@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, Dict, Any
 
 from sqlalchemy.orm import Session
@@ -61,7 +62,8 @@ async def find_board_by_search(
     db: Session,
     page: Optional[int],
     page_size: Optional[int],
-    search: Optional[str] = None):
+    search: Optional[str] = None,
+):
     if search:
         return (db.query(
             board_entity,
@@ -101,3 +103,28 @@ async def find_my_board(
             .offset((page - 1) * page_size)
             .limit(page_size)
             .all())
+
+
+async def delete_board(
+    db: Session,
+    board_id: int,
+    user_id: int,
+):
+    board = db.query(board_entity).filter(
+        board_entity.id == board_id,
+        board_entity.user_id == user_id,
+    ).first()
+
+    board.deleted_at = datetime.now()
+    db.flush()
+    db.commit()
+
+    return {
+        'id': board.id,
+        'title': board.title,
+        'content': board.content,
+        'user_id': board.user_id,
+        'created_at': board.created_at.isoformat() if board.created_at else None,
+        'updated_at': board.updated_at.isoformat() if board.updated_at else None,
+        'deleted_at': board.deleted_at.isoformat() if board.deleted_at else None,
+    }
