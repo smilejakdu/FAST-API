@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -11,9 +12,9 @@ class BoardBase(BaseModel):
     content: str
     email: str
     user_id: int
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-    deleted_at: datetime | None = None
+    created_at: Optional[datetime] | None = None
+    updated_at: Optional[datetime] | None = None
+    deleted_at: Optional[datetime] | None = None
 
 
 class ResponseCreateBoard(CoreResponse):

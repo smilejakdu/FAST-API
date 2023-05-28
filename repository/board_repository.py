@@ -25,10 +25,10 @@ async def find_board_by_id(db: Session, board_id: int):
 
 
 async def update_board(
-        db: Session,
-        board_id: int,
-        body: BoardDto,
-        user_id: int
+    db: Session,
+    board_id: int,
+    body: BoardDto,
+    user_id: int
 ):
     board = db.query(board_entity).filter(
         board_entity.id == board_id,
@@ -58,10 +58,10 @@ async def find_board_all(db: Session):
 
 
 async def find_board_by_search(
-        db: Session,
-        page: Optional[int],
-        page_size: Optional[int],
-        search: Optional[str] = None):
+    db: Session,
+    page: Optional[int],
+    page_size: Optional[int],
+    search: Optional[str] = None):
     if search:
         return (db.query(
             board_entity,
@@ -80,14 +80,14 @@ async def find_board_by_search(
 
 
 async def find_my_board(
-        db: Session,
-        email: str,
-        page: Optional[int],
-        page_size: Optional[int],
+    db: Session,
+    email: str,
+    page: Optional[int],
+    page_size: Optional[int],
 ):
     return (db.query(board_entity)
-    .join(user_entity, user_entity.id == board_entity.user_id)
-            .filter(board_entity.user_id == email)
+            .join(user_entity, user_entity.id == board_entity.user_id)
+            .filter(user_entity.email == email)
             .offset((page - 1) * page_size)
             .limit(page_size)
             .all())

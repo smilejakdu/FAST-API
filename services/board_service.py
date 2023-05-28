@@ -82,8 +82,22 @@ async def find_my_board(
     if not response_find_my_board:
         raise HTTPException(status_code=404, detail="게시판 글이 존재하지 않습니다.")
 
-    response_find_board = [tuple_to_dict(tup) for tup in response_find_my_board]
-    print('response_find_board:', response_find_board)
+    data = [{
+        'id': board.id,
+        'title': board.title,
+        'content': board.content,
+        'user_id': board.user_id,
+        'created_at': str(board.created_at),  # assuming this is a datetime object
+        'updated_at': str(board.updated_at),  # assuming this is a datetime object
+        'deleted_at': str(board.deleted_at) if board.deleted_at else None,  # handle if datetime or None
+    } for board in response_find_my_board]
+
+    return JSONResponse({
+        "ok": True,
+        "status_code": HTTPStatus.OK,
+        'message': '내 게시판 데이터',
+        "data": data,
+    })
 
 
 async def create_board(db: Session, body: BoardDto, access_token: str):
