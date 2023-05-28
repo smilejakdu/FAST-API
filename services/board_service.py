@@ -28,11 +28,11 @@ def tuple_to_dict(tup):
     return board_dict
 
 
-async def find_board_all(
-        db: Session,
-        page: Optional[int] = None,
-        page_size: Optional[int] = None,
-        search: Optional[str] = None,
+async def find_my_board(
+    db: Session,
+    page: Optional[int] = None,
+    page_size: Optional[int] = None,
+    search: Optional[str] = None,
 ):
     response_find_board = await board_repository.find_board_by_search(
         db,
@@ -56,6 +56,34 @@ async def find_board_all(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail="Bad Request")
+
+
+async def find_my_board(
+    db: Session,
+    page: Optional[int] = None,
+    page_size: Optional[int] = None,
+    access_token: str = None,
+):
+    payload = decode(
+        access_token,
+        SECRET_KEY,
+        algorithms=[ALGORITHM],
+    )
+
+    email = payload.get("sub")
+
+    response_find_my_board = await board_repository.find_my_board(
+        db,
+        email,
+        page,
+        page_size,
+    )
+
+    if not response_find_my_board:
+        raise HTTPException(status_code=404, detail="게시판 글이 존재하지 않습니다.")
+
+    response_find_board = [tuple_to_dict(tup) for tup in response_find_my_board]
+    print('response_find_board:', response_find_board)
 
 
 async def create_board(db: Session, body: BoardDto, access_token: str):

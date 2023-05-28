@@ -33,6 +33,28 @@ async def find_board_all(
     )
 
 
+@router.get(
+    "my_board",
+    response_model=ResponseFindBoardAll,
+    status_code=200,
+    summary="내가 작성한 게시판 가져오기",
+    description="내가 작성한 게시판 가져오기"
+)
+async def find_my_board(
+    request: Request,
+    query: FindBoardRequestDto = Depends(),
+    db: Session = Depends(get_db),
+):
+    access_token = request.cookies.get("access-token")
+    page, page_size = query.page, query.page_size
+    return await board_service.find_my_board(
+        db,
+        page,
+        page_size,
+        access_token
+    )
+
+
 @router.put(
     "/{board_id}",
     status_code=200,
