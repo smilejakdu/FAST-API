@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 import uvicorn
 from controller import (user_controller,
-                        board_controller,
+                        board_controller, review_controller,
                         )
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,6 +27,7 @@ app.add_middleware(
 
 app.include_router(user_controller.router)
 app.include_router(board_controller.router)
+app.include_router(review_controller.router)
 
 
 @app.get("/health")

@@ -1,16 +1,13 @@
 from http import HTTPStatus
 from typing import Optional
 
-import sqlalchemy
 from fastapi import HTTPException
-from jwt import decode
 from requests import Session
 from starlette.responses import JSONResponse
 
 from controller.dto.board_controller_dto.board_request_dto import BoardDto
 from models import board_entity
-from my_settings import ALGORITHM, SECRET_KEY
-from repository import user_repository, board_repository
+from repository import board_repository
 from shared.login_check import login_check
 from shared.trans_mapper import to_dict
 

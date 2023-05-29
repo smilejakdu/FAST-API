@@ -12,5 +12,6 @@ class user_entity(Base):
     password = Column(String(200), nullable=False)
     is_active = Column(Boolean, default=True)
     boards = relationship("board_entity", back_populates="user")
+    reviews = relationship("review_entity", back_populates="user")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

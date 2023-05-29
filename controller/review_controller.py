@@ -12,11 +12,11 @@ router = APIRouter(
 
 
 @router.post(
-    "",
+    "/{board_id}",
     status_code=201,
     summary="리뷰 생성하기",
     description="리뷰 생성 한다."
 )
-async def create_review(request: Request, body: ReviewDto, db: Session = Depends(get_db)):
+async def create_review(request: Request, board_id: int, body: ReviewDto, db: Session = Depends(get_db)):
     access_token = request.cookies.get("access-token")
-    return await review_service.create_reviews(db, body, access_token)
+    return await review_service.create_reviews(db, board_id, body, access_token)
