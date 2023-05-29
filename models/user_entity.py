@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 from sqlalchemy.orm import relationship
 
 from db import Base
-from models.board_entity import board_entity
 
 
 class user_entity(Base):

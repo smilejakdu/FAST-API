@@ -11,6 +11,7 @@ from controller.dto.board_controller_dto.board_request_dto import BoardDto
 from models import board_entity
 from my_settings import ALGORITHM, SECRET_KEY
 from repository import user_repository, board_repository
+from shared.login_check import login_check
 
 
 def to_dict(obj):
@@ -61,10 +62,13 @@ async def find_my_board(
     db: Session,
     page: Optional[int] = None,
     page_size: Optional[int] = None,
-    found_user: str = None,
+    access_token: str = None,
     search: str = None,
 ):
-    print("found_user", found_user)
+    found_user = await login_check(db, access_token)
+    if not found_user:
+        raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
+
     response_find_my_board = await board_repository.find_my_board(
         db,
         found_user['email'],
