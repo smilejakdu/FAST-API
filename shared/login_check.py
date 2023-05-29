@@ -29,6 +29,8 @@ async def login_check(
         user_dict = jsonable_encoder(user)
         return user_dict
 
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Signature has expired")
     except jwt.DecodeError:
         raise HTTPException(status_code=401, detail="Token Decode Error")
     except Exception as e:

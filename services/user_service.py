@@ -11,6 +11,7 @@ from starlette.responses import JSONResponse
 from controller.dto.user_controller_dto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
+from shared.login_check import login_check
 
 
 def find_user_by_id(db: Session, user_id: int):
@@ -109,20 +110,14 @@ async def login_user(body: LoginRequestDto, db: Session):
 
 async def my_info(db: Session, access_token: str):
     try:
-        payload = decode(
-            access_token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
-        )
+        found_user = await login_check(db, access_token)
 
-        email_from_token = payload.get("sub")
-        user_info = user_repository.find_user_by_email(db, email_from_token)
-        del user_info["password"]
+        del found_user["password"]
         response = JSONResponse({
             "ok": True,
             "status_code": HTTPStatus.OK,
             "message": "Login successful",
-            "data": user_info,
+            "data": found_user,
         })
         return response
     except Exception as e:

@@ -12,15 +12,7 @@ from models import board_entity
 from my_settings import ALGORITHM, SECRET_KEY
 from repository import user_repository, board_repository
 from shared.login_check import login_check
-
-
-def to_dict(obj):
-    return {c.key: getattr(obj, c.key)
-            for c in sqlalchemy.inspect(obj).mapper.column_attrs}
-
-
-def response_updated_as_dict(obj):
-    return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
+from shared.trans_mapper import to_dict
 
 
 def tuple_to_dict(tup):
@@ -100,31 +92,24 @@ async def find_my_board(
 
 async def create_board(db: Session, body: BoardDto, access_token: str):
     if not body:
-        raise HTTPException(status_code=400, detail="값을 입력해주세요")
+        raise HTTPException(status_code=400, detail="board 값을 입력해주세요")
 
     try:
-        payload = decode(
-            access_token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
-        )
-
-        email_from_token = payload.get("sub")
-        user_info = user_repository.find_user_by_email(db, email_from_token)
-        if not user_info:
+        found_user = await login_check(db, access_token)
+        if not found_user:
             raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
 
         response_created_board = await board_repository.create_board(
             db,
             body,
-            user_info["id"],
+            found_user["id"],
         )
 
         data = {
             'id': response_created_board.id,
             'title': response_created_board.title,
             'content': response_created_board.content,
-            'email': user_info['email'],
+            'email': found_user['email'],
             'user_id': response_created_board.user_id,
             'created_at': str(response_created_board.created_at),  # assuming this is a datetime object
             'updated_at': str(response_created_board.updated_at),  # assuming this is a datetime object
@@ -150,16 +135,9 @@ async def update_board(db: Session, board_id: int, body: BoardDto, access_token:
         raise HTTPException(status_code=400, detail="값을 입력해주세요")
 
     try:
-        payload = decode(
-            access_token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
-        )
+        found_user = await login_check(db, access_token)
 
-        email_from_token = payload.get("sub")
-        user_info = user_repository.find_user_by_email(db, email_from_token)
-
-        if not user_info:
+        if not found_user:
             raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
 
         if body.title is None or body.content is None:
@@ -169,7 +147,7 @@ async def update_board(db: Session, board_id: int, body: BoardDto, access_token:
             db,
             board_id,
             body,
-            user_info["id"],
+            found_user["id"],
         )
 
         return JSONResponse({
@@ -187,22 +165,15 @@ async def delete_board(db: Session, board_id: int, access_token: str):
     if board_id is None:
         raise HTTPException(status_code=404, detail="게시판 ID를 입력해주세요")
     try:
-        payload = decode(
-            access_token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
-        )
+        found_user = await login_check(db, access_token)
 
-        email_from_token = payload.get("sub")
-        user_info = user_repository.find_user_by_email(db, email_from_token)
-
-        if not user_info:
+        if not found_user:
             raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
 
         response_updated_board: board_entity = await board_repository.delete_board(
             db,
             board_id,
-            user_info["id"],
+            found_user["id"],
         )
 
         return JSONResponse({
