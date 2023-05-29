@@ -1,16 +1,13 @@
+from datetime import datetime, timedelta
 from http import HTTPStatus
 
 import bcrypt
-from jwt import decode, InvalidTokenError
 import jwt
-from datetime import datetime, timedelta
-
-from fastapi import HTTPException, Depends, status
+from fastapi import HTTPException, status
+from jwt import decode
 from sqlalchemy.orm import Session
-
 from starlette.responses import JSONResponse
 
-from models.connection import get_db
 from controller.dto.user_controller_dto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
@@ -71,25 +68,37 @@ async def create_access_token(data: dict, expires_delta: timedelta | None = None
 
 
 async def login_user(body: LoginRequestDto, db: Session):
-    print('body:', body)
     try:
         found_user = user_repository.find_user_by_email(db, body.email)
-        if bcrypt.checkpw(body.password.encode('UTF-8'),
-                          found_user["password"].encode('UTF-8')):
-            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            access_token = await create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
-            del found_user["password"]
-
-            response = JSONResponse({
-                "ok": True,
-                "status_code": HTTPStatus.OK,
-                "message": "Login successful",
-                "access_token": access_token,
-                "data": found_user,
+        if not found_user:
+            return JSONResponse({
+                "ok": False,
+                "status_code": 401,
+                "message": "does not found user",
             })
 
-            response.set_cookie(key="access-token", value=access_token)  # Set the cookie here
-            return response
+        if not bcrypt.checkpw(body.password.encode('UTF-8'),
+                              found_user["password"].encode('UTF-8')):
+            return JSONResponse({
+                "ok": False,
+                "status_code": 401,
+                "message": "Incorrect email or password",
+            })
+
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = await create_access_token(data={"sub": body.email}, expires_delta=access_token_expires)
+        del found_user["password"]
+
+        response = JSONResponse({
+            "ok": True,
+            "status_code": HTTPStatus.OK,
+            "message": "Login successful",
+            "access_token": access_token,
+            "data": found_user,
+        })
+
+        response.set_cookie(key="access-token", value=access_token)  # Set the cookie here
+        return response
     except Exception as e:
         print(e)
         raise HTTPException(
@@ -122,9 +131,9 @@ async def my_info(db: Session, access_token: str):
 
 
 async def update_user(
-        db: Session,
-        body: UpdateRequestDto,
-        access_token: str,
+    db: Session,
+    body: UpdateRequestDto,
+    access_token: str,
 ):
     try:
         payload = decode(
@@ -139,8 +148,8 @@ async def update_user(
         print('user_info:', user_info)
         # body 에 있는 password 와 user_info 의 password 를 비교한다.
         if bcrypt.checkpw(
-                body.password.encode('UTF-8'),
-                user_info["password"].encode('UTF-8'),
+            body.password.encode('UTF-8'),
+            user_info["password"].encode('UTF-8'),
         ):
             response_updated = user_repository.update_user_by_email(db, user_info['id'], body)
             return response_updated

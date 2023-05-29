@@ -6,6 +6,7 @@ from controller.dto.board_controller_dto.board_request_dto import BoardDto, \
 from controller.dto.board_controller_dto.board_response_dto import ResponseCreateBoard, ResponseFindBoardAll
 from models.connection import get_db
 from services import board_service
+from shared.login_check import login_check
 
 router = APIRouter(
     prefix="/board",
@@ -34,7 +35,7 @@ async def find_board_all(
 
 
 @router.get(
-    "my_board",
+    "/my_board",
     response_model=ResponseFindBoardAll,
     status_code=200,
     summary="내가 작성한 게시판 가져오기",
@@ -46,12 +47,13 @@ async def find_my_board(
     db: Session = Depends(get_db),
 ):
     access_token = request.cookies.get("access-token")
+    found_user = login_check(access_token)
     page, page_size, search = query.page, query.page_size, query.search
     return await board_service.find_my_board(
         db,
         page,
         page_size,
-        access_token,
+        found_user,
         search
     )
 

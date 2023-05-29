@@ -61,20 +61,13 @@ async def find_my_board(
     db: Session,
     page: Optional[int] = None,
     page_size: Optional[int] = None,
-    access_token: str = None,
+    found_user: str = None,
     search: str = None,
 ):
-    payload = decode(
-        access_token,
-        SECRET_KEY,
-        algorithms=[ALGORITHM],
-    )
-
-    email = payload.get("sub")
-
+    print("found_user", found_user)
     response_find_my_board = await board_repository.find_my_board(
         db,
-        email,
+        found_user['email'],
         page,
         page_size,
         search,
@@ -217,8 +210,3 @@ async def delete_board(db: Session, board_id: int, access_token: str):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail="Bad Request")
-
-
-
-
-

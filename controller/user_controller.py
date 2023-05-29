@@ -26,7 +26,7 @@ async def create_user(body: CreateRequestDto, db: Session = Depends(get_db)):
 
 @router.post(
     "/login",
-    response_model=LoginResponse,
+    # response_model=LoginResponse,
     status_code=200,
     summary="로그인",
     description="로그인하고 cookie token 을 받는다."
