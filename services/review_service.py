@@ -37,8 +37,57 @@ async def create_reviews(db: Session, board_id: int, body: ReviewDto, access_tok
         return JSONResponse({
             "ok": True,
             "status_code": HTTPStatus.OK,
-            "message": "Board Successful",
+            "message": "Create Board Successful",
             "data": data,
+        })
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+async def update_review(db: Session, review_id: int, body: ReviewDto, access_token: str):
+    if not body:
+        raise HTTPException(status_code=400, detail="review 값을 입력해주세요")
+
+    try:
+        found_user = await login_check(db, access_token)
+        if not found_user:
+            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
+
+        response_updated_review = await review_repository.update_review(
+            db,
+            review_id,
+            body,
+            found_user["id"],
+        )
+
+        return JSONResponse({
+            "ok": True,
+            "status_code": HTTPStatus.OK,
+            "message": "Update Board Successful",
+            "data": response_updated_review,
+        })
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+async def delete_review(db: Session, review_id: int, access_token: str):
+    try:
+        found_user = await login_check(db, access_token)
+        if not found_user:
+            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
+
+        response_deleted_review = await review_repository.delete_review(
+            db,
+            review_id,
+            found_user["id"],
+        )
+
+        return JSONResponse({
+            "ok": True,
+            "status_code": HTTPStatus.OK,
+            "message": "Delete Review Successful",
+            "data": response_deleted_review,
         })
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
