@@ -1,8 +1,8 @@
 FROM ubuntu:latest
 RUN apt-get update
-RUN apt-get install -y python-dev python3-pip build-essential
-WORKDIR /fast_api_watcha
+RUN apt-get install -y python3-dev python3-pip build-essential
+WORKDIR /fast_backend
 COPY ["requirements.txt","."]
 RUN pip install -r requirements.txt
-COPY ["var.py","."]
-CMD ["uvicorn", "main:app", "--reload"]
+CMD ["uvicorn", "main:app", "--reload","--port","13013"]
+
