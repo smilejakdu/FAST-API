@@ -5,4 +5,3 @@ WORKDIR /fast_backend
 COPY ["requirements.txt","."]
 RUN pip install -r requirements.txt
 CMD ["uvicorn", "main:app", "--reload","--port","13013"]
-
