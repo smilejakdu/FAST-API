@@ -8,6 +8,20 @@ from models.user_entity import user_entity
 from models.board_entity import board_entity
 
 
+async def find_board_object(
+    board,
+):
+    return {
+        'id': board.id,
+        'title': board.title,
+        'content': board.content,
+        'user_id': board.user_id,
+        'created_at': board.created_at.isoformat() if board.created_at else None,
+        'updated_at': board.updated_at.isoformat() if board.updated_at else None,
+        'deleted_at': board.deleted_at.isoformat() if board.deleted_at else None,
+    }
+
+
 async def create_board(db: Session, body: BoardDto, user_id: int):
     new_board = board_entity()
     new_board.title = body.title
@@ -41,16 +55,7 @@ async def update_board(
     db.flush()
     db.commit()
 
-    return {
-        'id': board.id,
-        'title': board.title,
-        'content': board.content,
-        'user_id': board.user_id,
-        'created_at': board.created_at.isoformat() if board.created_at else None,
-        'updated_at': board.updated_at.isoformat() if board.updated_at else None,
-        'deleted_at': board.deleted_at.isoformat() if board.deleted_at else None,
-    }
-
+    return find_board_object(board)
 
 async def find_board_all(db: Session):
     # 페이지네이션 구현
@@ -119,12 +124,4 @@ async def delete_board(
     db.flush()
     db.commit()
 
-    return {
-        'id': board.id,
-        'title': board.title,
-        'content': board.content,
-        'user_id': board.user_id,
-        'created_at': board.created_at.isoformat() if board.created_at else None,
-        'updated_at': board.updated_at.isoformat() if board.updated_at else None,
-        'deleted_at': board.deleted_at.isoformat() if board.deleted_at else None,
-    }
+    return find_board_object(board)
