@@ -57,10 +57,12 @@ async def update_board(
 
     return find_board_object(board)
 
-async def find_board_all(db: Session):
+
+async def find_board_all(db: Session, page_num: int, page_size: int):
     # 페이지네이션 구현
-    board = db.query(board_entity).all()
-    return board
+    offset = (page_num - 1) * page_size
+    boards = db.query(board_entity).offset(offset).limit(page_size).all()
+    return boards
 
 
 async def find_board_by_search(
