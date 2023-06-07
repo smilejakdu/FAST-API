@@ -34,6 +34,20 @@ async def find_board_all(
 
 
 @router.get(
+    "/{board_id}",
+    status_code=200,
+    summary="게시판 상세보기",
+    description="게시판 상세보기"
+)
+async def find_board_by_id(
+    request: Request,
+    board_id: int,
+    db: Session = Depends(get_db),
+):
+    return await board_service.find_board_by_id(db, board_id)
+
+
+@router.get(
     "/my_board",
     response_model=ResponseFindBoardAll,
     status_code=200,

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import joinedload
 
 from controller.dto.board_controller_dto.board_request_dto import BoardDto
 from models.user_entity import user_entity
@@ -35,8 +36,13 @@ async def create_board(db: Session, body: BoardDto, user_id: int):
     return new_board
 
 
+# 특정 게시판에 연결된 리뷰를 가져오는 경우
 async def find_board_by_id(db: Session, board_id: int):
-    return db.query(board_entity).filter(board_entity.id == board_id).first()
+    board = db.query(board_entity) \
+        .options(joinedload(board_entity.reviews)) \
+        .filter(board_entity.id == board_id) \
+        .first()
+    return board
 
 
 async def update_board(
@@ -56,13 +62,6 @@ async def update_board(
     db.commit()
 
     return find_board_object(board)
-
-
-async def find_board_all(db: Session, page_num: int, page_size: int):
-    # 페이지네이션 구현
-    offset = (page_num - 1) * page_size
-    boards = db.query(board_entity).offset(offset).limit(page_size).all()
-    return boards
 
 
 async def find_board_by_search(

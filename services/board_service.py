@@ -18,6 +18,11 @@ def tuple_to_dict(tup):
     return board_dict
 
 
+async def find_board_by_id(db: Session, board_id: int):
+    board = await board_repository.find_board_by_id(db, board_id)
+    return board
+
+
 async def find_board_all(
     db: Session,
     page: Optional[int] = None,

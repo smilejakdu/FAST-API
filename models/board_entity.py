@@ -11,7 +11,7 @@ class board_entity(Base):
     content = Column(String(200), nullable=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("user_entity", back_populates="boards")
-    reviews = relationship("review_entity", back_populates="board")
+    reviews = relationship("review_entity", backref="board", lazy="dynamic")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
