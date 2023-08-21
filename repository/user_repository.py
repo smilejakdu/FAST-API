@@ -60,7 +60,8 @@ class UserRepository:
         }
 
     async def update_user_by_email(self, user_id: int, body: UserDto):
-        response_updated_user = await update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
+        response_updated_user = await update(user_entity).where(user_entity.id == user_id).values(
+            nickname=body.nickname). \
             execution_options(synchronize_session="fetch")
         await self.db_session.execute(response_updated_user)
         self.db_session.commit()

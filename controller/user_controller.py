@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, HTTPException
 
 from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
 from controller.dto.user_controller_dto.user_response_dto import LoginResponse, MyInfoResponse
-from services import user_service
+from services.user_service import UserService
 from shared.core_response import CoreResponse
 
 ACCESS_TOKEN_COOKIE = "access-token"
@@ -28,7 +28,7 @@ async def get_access_token(request: Request) -> str:
     description="회원가입을 한다."
 )
 async def create_user(body: CreateRequestDto):
-    return await user_service.create_user(body)
+    return await UserService.create_user(body)
 
 
 @router.post(
@@ -41,7 +41,7 @@ async def create_user(body: CreateRequestDto):
 async def login_user(
     login_request_dto: LoginRequestDto
 ):
-    return await user_service.login_user(login_request_dto)
+    return await UserService.login_user(login_request_dto)
 
 
 @router.get(
@@ -53,7 +53,7 @@ async def login_user(
 )
 async def my_info(request: Request):
     access_token = request.cookies.get(ACCESS_TOKEN_COOKIE)
-    return await user_service.my_info(access_token)
+    return await UserService.my_info(access_token)
 
 
 @router.put(
@@ -68,4 +68,4 @@ async def update_user(
     body: UpdateRequestDto,
 ):
     access_token = request.cookies.get("access-token")
-    return await user_service.update_user(body, access_token)
+    return await UserService.update_user(body, access_token)
