@@ -3,7 +3,8 @@
 from fastapi import FastAPI
 import uvicorn
 from controller import (user_controller,
-                        board_controller, review_controller,
+                        board_controller,
+                        review_controller,
                         )
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,8 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()  # FastAPI 모듈
 
 origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
     "http://localhost",
     "http://localhost:13013",
 ]

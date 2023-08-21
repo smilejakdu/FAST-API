@@ -1,10 +1,9 @@
-from typing import Type, Optional
+from typing import Optional
 
 import jwt
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
 
 from models.user_entity import user_entity
 from my_settings import SECRET_KEY, ALGORITHM

@@ -9,19 +9,19 @@ python , FAST API , MySQL , sqlalchemy
 
 ## requirements 변경
 
-```angular2html
+```markdown
 pip freeze > requirements.txt
 ```
 
 ## run
 
-```angular2html
+```markdown
 uvicorn main:app --reload 
 ```
 
 ## local
 
-```angular2html
+```markdown
 http://localhost:13013/docs
 ```
 
