@@ -1,23 +1,17 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.orm import Session
 
 from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
 from controller.dto.user_controller_dto.user_response_dto import LoginResponse, MyInfoResponse
-from services.user_service import UserService
+from models.connection import get_db
+from repository.user_repository import UserRepository
+from services import user_service
 from shared.core_response import CoreResponse
-
-ACCESS_TOKEN_COOKIE = "access-token"
 
 router = APIRouter(
     prefix="/user",
     tags=["USER"],
 )
-
-
-async def get_access_token(request: Request) -> str:
-    access_token = request.cookies.get(ACCESS_TOKEN_COOKIE)
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    return access_token
 
 
 @router.post(
@@ -27,8 +21,8 @@ async def get_access_token(request: Request) -> str:
     summary="회원가입",
     description="회원가입을 한다."
 )
-async def create_user(body: CreateRequestDto):
-    return await UserService.create_user(body)
+async def create_user(body: CreateRequestDto, db: Session = Depends(get_db)):
+    return await user_service.create_user(body, db)
 
 
 @router.post(
@@ -39,9 +33,10 @@ async def create_user(body: CreateRequestDto):
     description="로그인하고 cookie token 을 받는다."
 )
 async def login_user(
-    login_request_dto: LoginRequestDto
+    body: LoginRequestDto,
+    user_repo: UserRepository = Depends(UserRepository)
 ):
-    return await UserService.login_user(login_request_dto)
+    return await user_service.login_user(body, user_repo)
 
 
 @router.get(
@@ -51,9 +46,9 @@ async def login_user(
     summary="내 정보",
     description="내 정보를 가져온다."
 )
-async def my_info(request: Request):
-    access_token = request.cookies.get(ACCESS_TOKEN_COOKIE)
-    return await UserService.my_info(access_token)
+async def my_info(request: Request, db: Session = Depends(get_db)):
+    access_token = request.cookies.get("access-token")
+    return await user_service.my_info(db, access_token)
 
 
 @router.put(
@@ -64,8 +59,9 @@ async def my_info(request: Request):
     description="수정하고 나서 내정보를 가져온다."
 )
 async def update_user(
-    request: Request,
-    body: UpdateRequestDto,
+        request: Request,
+        body: UpdateRequestDto,
+        db: Session = Depends(get_db),
 ):
     access_token = request.cookies.get("access-token")
-    return await UserService.update_user(body, access_token)
+    return await user_service.update_user(db, body, access_token)

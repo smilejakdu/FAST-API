@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import List
 
 import bcrypt
 from fastapi import Depends
@@ -13,8 +12,8 @@ from models.user_entity import user_entity
 
 
 class UserRepository:
-    def __init__(self, db_session: Session = Depends(get_db)):
-        self.db_session = db_session
+    def __init__(self, session: Session = Depends(get_db)):
+        self.session = session
 
     async def create_user(self, body):
         new_user = user_entity()
@@ -25,9 +24,9 @@ class UserRepository:
         new_user.password = password_crypt
         new_user.is_active = True
 
-        self.db_session.add(new_user)
-        self.db_session.flush()
-        self.db_session.commit()
+        self.session.add(new_user)
+        self.session.flush()
+        self.session.commit()
 
         return {
             "ok": True,
@@ -35,23 +34,23 @@ class UserRepository:
             "message": "User created successfully"
         }
 
-    async def find_user_by_id(self, user_id: int):
-        user = await self.db_session.query(user_entity).filter(user_entity.id == user_id).first()
+    def find_user_by_id(self, user_id: int):
+        user = self.session.query(user_entity).filter(user_entity.id == user_id).first()
         return jsonable_encoder(user)
 
-    async def find_user_all(self) -> List[user_entity]:
-        users = await self.db_session.query(user_entity).all()
+    def find_user_all(self):
+        users = self.session.query(user_entity).all()
         return jsonable_encoder(users)
 
     async def find_user_by_email(self, user_email: str):
-        user = await self.db_session.query(user_entity).filter(user_entity.email == user_email).first()
+        user = self.session.query(user_entity).filter(user_entity.email == user_email).first()
         return jsonable_encoder(user)
 
-    async def update_user_by_id(self, user_id: int, body: UserDto):
-        stmt = await update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
+    def update_user_by_id(self, user_id: int, body: UserDto):
+        stmt = update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
             execution_options(synchronize_session="fetch")
-        await self.db_session.execute(stmt)
-        self.db_session.commit()
+        self.session.execute(stmt)
+        self.session.commit()
         return {
             "ok": True,
             "status_code": 200,
@@ -59,12 +58,11 @@ class UserRepository:
             "message": "SUCCESS",
         }
 
-    async def update_user_by_email(self, user_id: int, body: UserDto):
-        response_updated_user = await update(user_entity).where(user_entity.id == user_id).values(
-            nickname=body.nickname). \
+    def update_user_by_email(self, user_id: int, body: UserDto):
+        response_updated_user = update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
             execution_options(synchronize_session="fetch")
-        await self.db_session.execute(response_updated_user)
-        self.db_session.commit()
+        self.session.execute(response_updated_user)
+        self.session.commit()
         return {
             "ok": True,
             "status_code": HTTPStatus.OK,
