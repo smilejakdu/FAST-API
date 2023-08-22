@@ -3,19 +3,17 @@ from http import HTTPStatus
 
 import bcrypt
 import jwt
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 from jwt import decode
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from controller.dto.user_controller_dto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
-from models.connection import get_db
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
 from repository.user_repository import UserRepository
+from shared.error_response import CustomException
 from shared.login_check import login_check
-
-
 
 
 def find_user_by_id(db: Session, user_id: int):
@@ -38,27 +36,25 @@ def find_user_all(db: Session):
         raise HTTPException(status_code=400, detail="BAD REQUEST")
 
 
-async def create_user(body: CreateRequestDto, db: Session):
-    try:
-        if not body:
-            raise HTTPException(status_code=400, detail="BAD REQUEST")
-        user = user_repository.find_user_by_email(db, body.email)
-        if user:
-            raise HTTPException(status_code=404, detail="EXIST USER")
-        response_created_user = await user_repository.create_user(db, body)
+async def create_user(
+    body: CreateRequestDto,
+    user_repo: UserRepository,
+):
+    if not body:
+        raise CustomException(message="BAD REQUEST", status_code=400)
+    user = await user_repo.find_user_by_email(body.email)
+    if user:
+        raise CustomException(message="EXIST USER", status_code=409)
+    response_created_user = await user_repo.create_user(body)
 
-        access_token = create_access_token({"email": body.email})
-        response_created_user["access_token"] = access_token
+    access_token = await create_access_token({"email": body.email})
+    response_created_user["access_token"] = access_token
 
-        return {
-            "ok": True,
-            "status_code": 201,
-            "message": response_created_user['message']
-        }
-    except Exception as e:
-        print(e)
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Bad Request")
+    return {
+        "ok": True,
+        "status_code": 201,
+        "message": response_created_user['message']
+    }
 
 
 async def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -72,7 +68,10 @@ async def create_access_token(data: dict, expires_delta: timedelta | None = None
     return encoded_jwt
 
 
-async def login_user(body: LoginRequestDto, user_repo: UserRepository):
+async def login_user(
+    body: LoginRequestDto,
+    user_repo: UserRepository,
+):
     try:
         found_user = await user_repo.find_user_by_email(body.email)
         if not found_user:
@@ -112,8 +111,12 @@ async def login_user(body: LoginRequestDto, user_repo: UserRepository):
         )
 
 
-async def my_info(db: Session, access_token: str):
+async def my_info(
+    access_token: str,
+    user_repo=UserRepository,
+):
     try:
+        found_user = await login_check(access_token)
         found_user = await login_check(db, access_token)
 
         del found_user["password"]

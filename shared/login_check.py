@@ -7,10 +7,11 @@ from sqlalchemy.orm import Session
 
 from models.user_entity import user_entity
 from my_settings import SECRET_KEY, ALGORITHM
+from repository.user_repository import UserRepository
 
 
 async def login_check(
-    db: Session,
+    user_repo: UserRepository,
     access_token: str = None
 ) -> Optional[user_entity]:
     try:
@@ -21,7 +22,7 @@ async def login_check(
         )
 
         email = payload.get("sub")
-        user = db.query(user_entity).filter(user_entity.email == email).first()
+        user = user_repo.find_user_by_email(user_email=email)
 
         if not user:
             raise HTTPException(status_code=401, detail="Item not found")

@@ -8,8 +8,11 @@ from controller import (user_controller,
                         )
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.error_response import unicorn_exception_handler, CustomException
 
 app = FastAPI()  # FastAPI 모듈
+
+app.add_exception_handler(CustomException, unicorn_exception_handler)
 
 origins = [
     "http://localhost",
@@ -30,7 +33,7 @@ app.include_router(review_controller.router)
 
 
 @app.get("/health")
-def index():
+def health_check_handler():
     return 'health check ok'
 
 

@@ -21,8 +21,11 @@ router = APIRouter(
     summary="회원가입",
     description="회원가입을 한다."
 )
-async def create_user(body: CreateRequestDto, db: Session = Depends(get_db)):
-    return await user_service.create_user(body, db)
+async def create_user(
+    body: CreateRequestDto,
+    user_repo: UserRepository = Depends(UserRepository)
+):
+    return await user_service.create_user(body, user_repo)
 
 
 @router.post(
@@ -46,9 +49,12 @@ async def login_user(
     summary="내 정보",
     description="내 정보를 가져온다."
 )
-async def my_info(request: Request, db: Session = Depends(get_db)):
+async def my_info(
+    request: Request,
+    user_repo: UserRepository = Depends(UserRepository)
+):
     access_token = request.cookies.get("access-token")
-    return await user_service.my_info(db, access_token)
+    return await user_service.my_info(access_token,user_repo)
 
 
 @router.put(
