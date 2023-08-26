@@ -16,3 +16,12 @@ class user_entity(Base):
     reviews = relationship("review_entity", back_populates="user")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    @classmethod
+    def create(cls, email: str, nickname: str, password: str) -> "user_entity":
+        return cls(
+            email=email,
+            nickname=nickname,
+            password=password,
+            is_active=True,
+        )

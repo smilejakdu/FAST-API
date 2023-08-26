@@ -16,13 +16,13 @@ class UserRepository:
         self.session = session
 
     async def create_user(self, body):
-        new_user = user_entity()
-        new_user.email = body.email
-        new_user.nickname = body.nickname
         password_crypt = bcrypt.hashpw(body.password.encode('utf-8'),
                                        bcrypt.gensalt()).decode('utf-8')
-        new_user.password = password_crypt
-        new_user.is_active = True
+        new_user: user_entity = user_entity.create(
+            email=body.email,
+            nickname=body.nickname,
+            password=password_crypt,
+        )
 
         self.session.add(new_user)
         self.session.flush()
