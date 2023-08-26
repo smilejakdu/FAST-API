@@ -1,34 +1,40 @@
 from fastapi import HTTPException
 from http import HTTPStatus
 from requests import Session
+from starlette import status
 
 from controller.dto.review_controller_dto.review_request_dto import ReviewDto
 from repository import review_repository
 from starlette.responses import JSONResponse
 
+from repository.review_repository import ReviewRepository
+from shared.error_response import CustomException
 from shared.login_check import login_check
 
 
-async def create_reviews(db: Session, board_id: int, body: ReviewDto, access_token: str):
+async def create_reviews(
+    board_id: int,
+    body: ReviewDto,
+    user: dict,
+    review_repo: ReviewRepository,
+):
     if not body:
-        raise HTTPException(status_code=400, detail="review 값을 입력해주세요")
+        raise CustomException(message="review 값을 입력해주세요", status_code=status.HTTP_400_BAD_REQUEST)
 
     try:
-        found_user = await login_check(db, access_token)
-        if not found_user:
+        if not user:
             raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
 
-        response_created_review = await review_repository.create_review(
-            db,
+        response_created_review = await review_repo.create_review(
             board_id,
             body,
-            found_user["id"],
+            user["id"],
         )
 
         data = {
             'id': response_created_review.id,
             'content': response_created_review.content,
-            'email': found_user['email'],
+            'email': user['email'],
             'created_at': str(response_created_review.created_at),  # assuming this is a datetime object
             'updated_at': str(response_created_review.updated_at),  # assuming this is a datetime object
             'deleted_at': str(response_created_review.deleted_at) if response_created_review.deleted_at else None,

@@ -9,6 +9,7 @@ from controller.dto.board_controller_dto.board_request_dto import BoardDto
 from models import board_entity
 from repository import board_repository
 from repository.board_repository import BoardRepository
+from shared.error_response import CustomException
 from shared.login_check import login_check
 from shared.trans_mapper import to_dict
 
@@ -68,7 +69,7 @@ async def find_my_board(
     )
 
     if not response_find_my_board:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="게시판 글이 존재하지 않습니다.")
+        raise CustomException(message="게시판 글이 존재하지 않습니다.", status_code=status.HTTP_404_NOT_FOUND)
 
     data = [{
         'id': board.id,
