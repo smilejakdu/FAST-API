@@ -19,11 +19,11 @@ async def create_reviews(
     review_repo: ReviewRepository,
 ):
     if not body:
-        raise CustomException(message="review 값을 입력해주세요", status_code=status.HTTP_400_BAD_REQUEST)
+        raise CustomException(message="review 값을 입력해주세요", status_code=400)
 
     try:
         if not user:
-            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
+            raise CustomException(status_code=404, message="존재하지 않는 유저입니다.")
 
         response_created_review = await review_repo.create_review(
             board_id,

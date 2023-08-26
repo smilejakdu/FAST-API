@@ -25,11 +25,11 @@ router = APIRouter(
 )
 async def find_board_all(
     query: FindBoardRequestDto = Depends(),
-    db: Session = Depends(get_db),
+    board_repo: BoardRepository = Depends(BoardRepository),
 ):
     page, page_size, search = query.page, query.page_size, query.search
     return await board_service.find_board_all(
-        db,
+        board_repo,
         page,
         page_size,
         search,
@@ -68,11 +68,10 @@ async def find_my_board(
     description="게시판 상세보기"
 )
 async def find_board_by_id(
-    request: Request,
     board_id: int,
-    db: Session = Depends(get_db),
+    board_repo: BoardRepository = Depends(BoardRepository),
 ):
-    return await board_service.find_board_by_id(db, board_id)
+    return await board_service.find_board_by_id(board_id, board_repo)
 
 
 @router.put(

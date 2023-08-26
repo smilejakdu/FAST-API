@@ -20,26 +20,28 @@ def tuple_to_dict(tup):
     return board_dict
 
 
-async def find_board_by_id(db: Session, board_id: int):
-    board = await board_repository.find_board_by_id(db, board_id)
+async def find_board_by_id(
+    board_id: int,
+    board_repo: BoardRepository,
+):
+    board = await board_repo.find_board_by_id(board_id)
     return board
 
 
 async def find_board_all(
-    db: Session,
+    board_repo: BoardRepository,
     page: Optional[int] = None,
     page_size: Optional[int] = None,
     search: Optional[str] = None,
 ):
     try:
-        response_find_board = await board_repository.find_board_by_search(
-            db,
+        response_find_board = await board_repo.find_board_by_search(
             page,
             page_size,
             search,
         )
         if not response_find_board:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="게시판 글이 존재하지 않습니다.")
+            raise CustomException(status_code=status.HTTP_404_NOT_FOUND, message="게시판 글이 존재하지 않습니다.")
 
         response_find_board = [tuple_to_dict(tup) for tup in response_find_board]
 
@@ -51,7 +53,7 @@ async def find_board_all(
         }
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bad Request")
+        raise CustomException(status_code=status.HTTP_400_BAD_REQUEST, message="Bad Request")
 
 
 async def find_my_board(
@@ -96,7 +98,7 @@ async def create_board(
     board_repo: BoardRepository,
 ) -> JSONResponse:
     if not body:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="board 값을 입력해주세요")
+        raise CustomException(status_code=status.HTTP_400_BAD_REQUEST, message="board 값을 입력해주세요")
 
     try:
         response_created_board = await board_repo.create_board(
@@ -123,7 +125,7 @@ async def create_board(
         })
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=400, detail="Bad Request")
+        raise CustomException(status_code=400, message="Bad Request")
 
 
 async def update_board(
@@ -133,18 +135,18 @@ async def update_board(
     board_repo: BoardRepository,
 ):
     if board_id is None:
-        raise HTTPException(status_code=404, detail="게시판 ID를 입력해주세요")
+        raise CustomException(status_code=404, message="게시판 ID를 입력해주세요")
 
     if not body:
-        raise HTTPException(status_code=400, detail="값을 입력해주세요")
+        raise CustomException(status_code=400, message="값을 입력해주세요")
 
     try:
 
         if not user:
-            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
+            raise CustomException(status_code=404, message="존재하지 않는 유저입니다.")
 
         if body.title is None or body.content is None:
-            raise HTTPException(status_code=404, detail="데이터를 입력해주세요")
+            raise CustomException(status_code=404, message="데이터를 입력해주세요")
 
         response_updated_board: board_entity = await board_repo.update_board(
             board_id,
@@ -160,22 +162,23 @@ async def update_board(
         })
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=400, detail="Bad Request")
+        raise CustomException(status_code=400, message="Bad Request")
 
 
-async def delete_board(db: Session, board_id: int, access_token: str):
+async def delete_board(
+    board_repo: BoardRepository,
+    board_id: int,
+    user: dict,
+):
     if board_id is None:
-        raise HTTPException(status_code=404, detail="게시판 ID를 입력해주세요")
+        raise CustomException(status_code=404, message="게시판 ID를 입력해주세요")
     try:
-        found_user = await login_check(db, access_token)
+        if not user:
+            raise CustomException(status_code=404, message="존재하지 않는 유저입니다.")
 
-        if not found_user:
-            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
-
-        response_updated_board: board_entity = await board_repository.delete_board(
-            db,
+        response_updated_board: board_entity = await board_repo.delete_board(
             board_id,
-            found_user["id"],
+            user["id"],
         )
 
         return JSONResponse({
@@ -186,4 +189,4 @@ async def delete_board(db: Session, board_id: int, access_token: str):
         })
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=400, detail="Bad Request")
+        raise CustomException(status_code=400, message="Bad Request")

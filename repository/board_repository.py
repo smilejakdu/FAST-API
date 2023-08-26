@@ -82,7 +82,7 @@ class BoardRepository:
         search: Optional[str] = None,
     ):
         if search:
-            return (await self.session.query(
+            return (self.session.query(
                 board_entity,
                 user_entity.email,
             )
@@ -91,7 +91,7 @@ class BoardRepository:
                     .offset((page - 1) * page_size)
                     .limit(page_size)
                     .all())
-        return (await self.session.query(board_entity, user_entity.email)
+        return (self.session.query(board_entity, user_entity.email)
                 .join(user_entity, user_entity.id == board_entity.user_id)
                 .offset((page - 1) * page_size)
                 .limit(page_size)
