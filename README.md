@@ -1,9 +1,8 @@
 # FAST API
 https://fastapi.tiangolo.com/ko/tutorial/path-params/
 
-Fast API
-
 # 실행
+
 ## Used
 python , FAST API , MySQL , sqlalchemy
 
@@ -13,20 +12,30 @@ python , FAST API , MySQL , sqlalchemy
 pip freeze > requirements.txt
 ```
 
-## run
-
-```markdown
-uvicorn main:app --reload 
-```
-
 ## local
 
 ```markdown
-http://localhost:13013/docs
+http://localhost:12013/docs
 ```
 
-# sprint 1
-## user , board , review crud
+# ✅ user
 
-# sprint 2
-## board 좋아요 순
+- 회원가입
+- 로그인 ( with JWT )
+- 내정보
+- 내정보 수정
+
+# ✅ board
+
+- board 생성
+- board 전체 조회 ( with 페이징 )
+- 내가 작성한 board 조회
+- 하나의 board 와 reviews 조회
+- board 수정
+- board 삭제
+
+# ✅ review
+
+- review 생성
+- review 수정
+- review 삭제
