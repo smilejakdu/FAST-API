@@ -2,23 +2,17 @@ version: '3'
 services:
   fast_backend:
     build:
-      dockerfile: Dockerfile
+      dockerfile: compose/local/server/Dockerfile
       context: .
     container_name: fast_backend
     ports:
-      - '13013:13013'
+      - '12013:12013'
     env_file:
-      - .env
+      - compose/local/server/server.env
     links:
       - db
     depends_on:
       - db
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=123456
-      - MYSQL_DATABASE=fast
 
   db:
     image: mysql:8.0.23
@@ -30,4 +24,4 @@ services:
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/sqls/:/docker-entrypoint-initdb.d/
     env_file:
-      - .env
+      - compose/db/mysql.env

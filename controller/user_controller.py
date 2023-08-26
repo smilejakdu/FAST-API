@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
@@ -6,6 +7,8 @@ from controller.dto.user_controller_dto.user_response_dto import LoginResponse, 
 from models.connection import get_db
 from repository.user_repository import UserRepository
 from services import user_service
+from services.login_check_service import login_check_service
+from services.user_service import get_user_from_token
 from shared.core_response import CoreResponse
 
 router = APIRouter(
@@ -50,11 +53,9 @@ async def login_user(
     description="내 정보를 가져온다."
 )
 async def my_info(
-    request: Request,
-    user_repo: UserRepository = Depends(UserRepository)
+    user: dict = Depends(get_user_from_token)
 ):
-    access_token = request.cookies.get("access-token")
-    return await user_service.my_info(access_token,user_repo)
+    return await user_service.my_info(user)
 
 
 @router.put(
@@ -65,9 +66,9 @@ async def my_info(
     description="수정하고 나서 내정보를 가져온다."
 )
 async def update_user(
-        request: Request,
-        body: UpdateRequestDto,
-        db: Session = Depends(get_db),
+    request: Request,
+    body: UpdateRequestDto,
+    db: Session = Depends(get_db),
 ):
     access_token = request.cookies.get("access-token")
     return await user_service.update_user(db, body, access_token)

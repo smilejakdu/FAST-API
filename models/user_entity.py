@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 from sqlalchemy.orm import relationship
 
+from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto
 from db import Base
 
 

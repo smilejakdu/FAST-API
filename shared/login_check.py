@@ -22,7 +22,8 @@ async def login_check(
         )
 
         email = payload.get("sub")
-        user = user_repo.find_user_by_email(user_email=email)
+        print("login_check email:", email)
+        user = await user_repo.find_user_by_email(user_email=email)
 
         if not user:
             raise HTTPException(status_code=401, detail="Item not found")

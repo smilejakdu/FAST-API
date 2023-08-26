@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import bcrypt
 import jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends, Request
 from jwt import decode
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
@@ -13,22 +13,11 @@ from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from repository import user_repository
 from repository.user_repository import UserRepository
 from shared.error_response import CustomException
-from shared.login_check import login_check
 
 
-def find_user_by_id(db: Session, user_id: int):
+async def find_user_all(db: Session):
     try:
-        if not user_id:
-            raise HTTPException(status_code=400, detail="BAD REQUEST")
-        user = user_repository.find_user_by_id(db, user_id)
-        return JSONResponse(content=user)
-    except Exception:
-        raise HTTPException(status_code=400, detail="BAD REQUEST")
-
-
-def find_user_all(db: Session):
-    try:
-        users = user_repository.find_user_all(db)
+        users = await user_repository.find_user_all(db)
         print('user:', users)
         return JSONResponse(content=users)
     except Exception as e:
@@ -112,24 +101,36 @@ async def login_user(
 
 
 async def my_info(
-    access_token: str,
-    user_repo=UserRepository,
+    user: dict,
 ):
     try:
-        found_user = await login_check(access_token)
-        found_user = await login_check(db, access_token)
-
-        del found_user["password"]
-        response = JSONResponse({
+        del user["password"]
+        return JSONResponse({
             "ok": True,
             "status_code": HTTPStatus.OK,
             "message": "Login successful",
-            "data": found_user,
+            "data": user,
         })
-        return response
     except Exception as e:
         print(e)
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+async def get_user_from_token(
+    request: Request,
+    user_repo: UserRepository = Depends(UserRepository)
+):
+    try:
+        get_access_token = request.cookies.get('access-token', None)
+        payload = jwt.decode(get_access_token, SECRET_KEY, algorithms=ALGORITHM)
+        print(payload)
+        user = await user_repo.find_user_by_email(payload['sub'])
+        print('user:', user)
+        return user
+    except jwt.DecodeError:
+        raise CustomException(message="INVALID_TOKEN", status_code=400)
+    except KeyError:
+        raise CustomException(message="INVALID_KEY", status_code=400)
 
 
 async def update_user(
