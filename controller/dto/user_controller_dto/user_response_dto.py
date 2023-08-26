@@ -19,6 +19,10 @@ class MyInfoResponse(CoreResponse):
     data: str
 
 
+class UpdateUserResponse(CoreResponse):
+    data: object
+
+
 class UserCreate(UserBase):
     password: str
 

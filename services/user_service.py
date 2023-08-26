@@ -4,7 +4,6 @@ from http import HTTPStatus
 import bcrypt
 import jwt
 from fastapi import HTTPException, status, Depends, Request
-from jwt import decode
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -134,29 +133,25 @@ async def get_user_from_token(
 
 
 async def update_user(
-    db: Session,
     body: UpdateRequestDto,
-    access_token: str,
+    user_repo: UserRepository,
+    user: dict,
 ):
     try:
-        payload = decode(
-            access_token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
-        )
-
-        email_from_token = payload.get("sub")
-        print('email_from_token:', email_from_token)
-        user_info = user_repository.find_user_by_email(db, email_from_token)
-        print('user_info:', user_info)
-        # body 에 있는 password 와 user_info 의 password 를 비교한다.
-        if bcrypt.checkpw(
+        if not bcrypt.checkpw(
             body.password.encode('UTF-8'),
-            user_info["password"].encode('UTF-8'),
+            user["password"].encode('UTF-8'),
         ):
-            response_updated = user_repository.update_user_by_email(db, user_info['id'], body)
-            return response_updated
+            raise CustomException(message="INVALID_PASSWORD", status_code=400)
+        response_updated = await user_repo.update_user_by_email(user['id'], body)
+        if response_updated['ok']:
+            return {
+                "ok": response_updated['ok'],
+                "message": "SUCCESS",
+                "status_code": 200,
+                "data": body
+            }
+
     except Exception as e:
         print(e)
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Bad Request")
+        raise CustomException(message="BAD REQUEST", status_code=400)

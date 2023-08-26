@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from controller.dto.user_controller_dto.user_request_dto import UserDto
+from controller.dto.user_controller_dto.user_request_dto import UserDto, UpdateRequestDto
 from models.connection import get_db
 from models.user_entity import user_entity
 
@@ -58,14 +58,12 @@ class UserRepository:
             "message": "SUCCESS",
         }
 
-    def update_user_by_email(self, user_id: int, body: UserDto):
+    async def update_user_by_email(self, user_id: int, body: UpdateRequestDto):
         response_updated_user = update(user_entity).where(user_entity.id == user_id).values(nickname=body.nickname). \
             execution_options(synchronize_session="fetch")
         self.session.execute(response_updated_user)
         self.session.commit()
         return {
             "ok": True,
-            "status_code": HTTPStatus.OK,
             "data": user_id,
-            "message": "SUCCESS",
         }
