@@ -7,21 +7,10 @@ services:
     container_name: fast_backend
     ports:
       - '12013:12013'
+    volumes:
+      - .:/app
     env_file:
       - compose/local/server/server.env
-    links:
-      - db
-    depends_on:
-      - db
+    stdin_open: true
+    tty: true
 
-  db:
-    image: mysql:8.0.23
-    restart: unless-stopped
-    platform: linux/x86_64
-    ports:
-      - '3307:3307'
-    volumes:
-      - ./mysql/mysql_data:/var/lib/mysql
-      - ./mysql/sqls/:/docker-entrypoint-initdb.d/
-    env_file:
-      - compose/db/mysql.env
