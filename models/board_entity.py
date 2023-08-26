@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 from db import Base
 
@@ -23,3 +24,7 @@ class board_entity(Base):
             content=content,
             user_id=user_id
         )
+
+    def delete(self) -> "board_entity":
+        self.deleted_at = datetime.now()
+        return self
