@@ -6,6 +6,11 @@ class BoardDto(BaseModel):
     content: str = Field(..., description="Board content")
 
 
+class CreateBoardDto(BaseModel):
+    title: str = Field(..., description="Board title")  # ... (ellipsis)를 사용하여 필드가 필수임을 명시적으로 표시
+    content: str = Field(..., description="Board content")
+
+
 class QueryFindBoardRequestDto(BaseModel):
     search: str = None
 

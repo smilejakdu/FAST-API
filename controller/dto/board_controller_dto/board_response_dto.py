@@ -17,7 +17,7 @@ class BoardBase(BaseModel):
     deleted_at: Optional[datetime] | None = None
 
 
-class ResponseCreateBoard(CoreResponse):
+class CreateResponseBoard(CoreResponse):
     data: BoardBase
 
 

@@ -1,13 +1,14 @@
 from http import HTTPStatus
 from typing import Optional
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from requests import Session
 from starlette.responses import JSONResponse
 
 from controller.dto.board_controller_dto.board_request_dto import BoardDto
 from models import board_entity
 from repository import board_repository
+from repository.board_repository import BoardRepository
 from shared.login_check import login_check
 from shared.trans_mapper import to_dict
 
@@ -37,7 +38,7 @@ async def find_board_all(
             search,
         )
         if not response_find_board:
-            raise HTTPException(status_code=404, detail="게시판 글이 존재하지 않습니다.")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="게시판 글이 존재하지 않습니다.")
 
         response_find_board = [tuple_to_dict(tup) for tup in response_find_board]
 
@@ -49,69 +50,64 @@ async def find_board_all(
         }
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=400, detail="Bad Request")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bad Request")
 
 
 async def find_my_board(
-    db: Session,
+    board_repo: BoardRepository,
+    user: dict,
     page: Optional[int] = None,
     page_size: Optional[int] = None,
-    access_token: str = None,
     search: str = None,
 ):
-    found_user = await login_check(db, access_token)
-    if not found_user:
-        raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
-
-    response_find_my_board = await board_repository.find_my_board(
-        db,
-        found_user['email'],
+    response_find_my_board = await board_repo.find_my_board(
+        user['email'],
         page,
         page_size,
         search,
     )
 
     if not response_find_my_board:
-        raise HTTPException(status_code=404, detail="게시판 글이 존재하지 않습니다.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="게시판 글이 존재하지 않습니다.")
 
     data = [{
         'id': board.id,
         'title': board.title,
         'content': board.content,
         'user_id': board.user_id,
+        'review_count': review_count if review_count else 0,
         'created_at': str(board.created_at),  # assuming this is a datetime object
         'updated_at': str(board.updated_at),  # assuming this is a datetime object
         'deleted_at': str(board.deleted_at) if board.deleted_at else None,  # handle if datetime or None
-    } for board in response_find_my_board]
+    } for board, review_count in response_find_my_board]
 
     return JSONResponse({
         "ok": True,
-        "status_code": HTTPStatus.OK,
+        "status_code": 200,
         'message': '내 게시판 데이터',
         "data": data,
     })
 
 
-async def create_board(db: Session, body: BoardDto, access_token: str):
+async def create_board(
+    user: dict,
+    body: BoardDto,
+    board_repo: BoardRepository,
+) -> JSONResponse:
     if not body:
-        raise HTTPException(status_code=400, detail="board 값을 입력해주세요")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="board 값을 입력해주세요")
 
     try:
-        found_user = await login_check(db, access_token)
-        if not found_user:
-            raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
-
-        response_created_board = await board_repository.create_board(
-            db,
+        response_created_board = await board_repo.create_board(
             body,
-            found_user["id"],
+            user["id"],
         )
 
         data = {
             'id': response_created_board.id,
             'title': response_created_board.title,
             'content': response_created_board.content,
-            'email': found_user['email'],
+            'email': user['email'],
             'user_id': response_created_board.user_id,
             'created_at': str(response_created_board.created_at),  # assuming this is a datetime object
             'updated_at': str(response_created_board.updated_at),  # assuming this is a datetime object
@@ -120,7 +116,7 @@ async def create_board(db: Session, body: BoardDto, access_token: str):
 
         return JSONResponse({
             "ok": True,
-            "status_code": HTTPStatus.OK,
+            "status_code": status.HTTP_201_CREATED,
             "message": "Board Successful",
             "data": data,
         })
@@ -129,7 +125,12 @@ async def create_board(db: Session, body: BoardDto, access_token: str):
         raise HTTPException(status_code=400, detail="Bad Request")
 
 
-async def update_board(db: Session, board_id: int, body: BoardDto, access_token: str):
+async def update_board(
+    board_id: int,
+    body: BoardDto,
+    user: dict,
+    board_repo: BoardRepository,
+):
     if board_id is None:
         raise HTTPException(status_code=404, detail="게시판 ID를 입력해주세요")
 
@@ -137,19 +138,17 @@ async def update_board(db: Session, board_id: int, body: BoardDto, access_token:
         raise HTTPException(status_code=400, detail="값을 입력해주세요")
 
     try:
-        found_user = await login_check(db, access_token)
 
-        if not found_user:
+        if not user:
             raise HTTPException(status_code=404, detail="존재하지 않는 유저입니다.")
 
         if body.title is None or body.content is None:
             raise HTTPException(status_code=404, detail="데이터를 입력해주세요")
 
-        response_updated_board: board_entity = await board_repository.update_board(
-            db,
+        response_updated_board: board_entity = await board_repo.update_board(
             board_id,
             body,
-            found_user["id"],
+            user["id"],
         )
 
         return JSONResponse({

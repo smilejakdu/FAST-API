@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, Request
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
 
 from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto, UpdateRequestDto, LoginRequestDto
 from controller.dto.user_controller_dto.user_response_dto import LoginResponse, MyInfoResponse, UpdateUserResponse
-from models.connection import get_db
 from repository.user_repository import UserRepository
 from services import user_service
 from services.user_service import get_user_from_token

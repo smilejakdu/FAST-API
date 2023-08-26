@@ -126,6 +126,8 @@ async def get_user_from_token(
         user = await user_repo.find_user_by_email(payload['sub'])
         print('user:', user)
         return user
+    except jwt.ExpiredSignatureError:
+        raise CustomException(message="TOKEN_EXPIRED", status_code=401)
     except jwt.DecodeError:
         raise CustomException(message="INVALID_TOKEN", status_code=400)
     except KeyError:
