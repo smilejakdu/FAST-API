@@ -15,3 +15,11 @@ class board_entity(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    @classmethod
+    def create(cls, title: str, content: str, user_id: int) -> "board_entity":
+        return cls(
+            title=title,
+            content=content,
+            user_id=user_id
+        )

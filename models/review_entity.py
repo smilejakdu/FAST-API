@@ -15,3 +15,11 @@ class review_entity(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    @classmethod
+    def create(cls, content: str, board_id: int, user_id: int) -> "review_entity":
+        return cls(
+            content=content,
+            board_id=board_id,
+            user_id=user_id
+        )

@@ -13,10 +13,11 @@ class ReviewRepository:
         self.session = session
 
     async def create_review(self, board_id: int, body: ReviewDto, user_id: int):
-        new_review = review_entity()
-        new_review.content = body.content
-        new_review.board_id = board_id
-        new_review.user_id = user_id
+        new_review = review_entity.create(
+            content=body.content,
+            board_id=board_id,
+            user_id=user_id,
+        )
 
         self.session.add(new_review)
         self.session.flush()

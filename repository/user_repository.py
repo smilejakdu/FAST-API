@@ -1,5 +1,3 @@
-from http import HTTPStatus
-
 import bcrypt
 from fastapi import Depends
 from fastapi.encoders import jsonable_encoder
@@ -38,7 +36,7 @@ class UserRepository:
         user = self.session.query(user_entity).filter(user_entity.id == user_id).first()
         return jsonable_encoder(user)
 
-    def find_user_all(self):
+    async def find_user_all(self):
         users = self.session.query(user_entity).all()
         return jsonable_encoder(users)
 

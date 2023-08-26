@@ -47,7 +47,7 @@ async def find_board_all(
 
         return {
             'ok': True,
-            'status_code': HTTPStatus.OK,
+            'status_code': status.OK,
             'message': '게시판 데이터',
             'data': response_find_board,
         }

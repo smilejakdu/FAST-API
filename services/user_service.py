@@ -4,20 +4,17 @@ from http import HTTPStatus
 import bcrypt
 import jwt
 from fastapi import HTTPException, status, Depends, Request
-from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from controller.dto.user_controller_dto.user_request_dto import LoginRequestDto, CreateRequestDto, UpdateRequestDto
 from my_settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from repository import user_repository
 from repository.user_repository import UserRepository
 from shared.error_response import CustomException
 
 
-async def find_user_all(db: Session):
+async def find_user_all(user_repo: UserRepository):
     try:
-        users = await user_repository.find_user_all(db)
-        print('user:', users)
+        users = await user_repo.find_user_all()
         return JSONResponse(content=users)
     except Exception as e:
         print(e)
@@ -34,15 +31,12 @@ async def create_user(
     if user:
         raise CustomException(message="EXIST USER", status_code=409)
     response_created_user = await user_repo.create_user(body)
-
-    access_token = await create_access_token({"email": body.email})
-    response_created_user["access_token"] = access_token
-
-    return {
-        "ok": True,
-        "status_code": 201,
-        "message": response_created_user['message']
-    }
+    if response_created_user["ok"]:
+        return {
+            "ok": True,
+            "status_code": 201,
+            "message": response_created_user['message']
+        }
 
 
 async def create_access_token(data: dict, expires_delta: timedelta | None = None):

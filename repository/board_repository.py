@@ -35,10 +35,11 @@ class BoardRepository:
         body: BoardDto,
         user_id: int,
     ):
-        new_board = board_entity()
-        new_board.title = body.title
-        new_board.content = body.content
-        new_board.user_id = user_id
+        new_board = board_entity.create(
+            title=body.title,
+            content=body.content,
+            user_id=user_id,
+        )
 
         self.session.add(new_board)
         self.session.flush()
