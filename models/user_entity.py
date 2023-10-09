@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 from sqlalchemy.orm import relationship
 
-from controller.dto.user_controller_dto.user_request_dto import CreateRequestDto
 from db import Base
 
 
@@ -15,7 +14,7 @@ class user_entity(Base):
     boards = relationship("board_entity", back_populates="user")
     reviews = relationship("review_entity", back_populates="user")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     @classmethod
     def create(cls, email: str, nickname: str, password: str) -> "user_entity":
